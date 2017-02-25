@@ -16,7 +16,7 @@ public:
 	Vector();
 	
 	virtual void randn()=0;
-	
+	virtual void clear()=0;
 	virtual ~Vector();
 };
 

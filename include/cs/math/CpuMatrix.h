@@ -20,9 +20,6 @@ class CpuMatrix:public Matrix {
 	
 private:
 	float* arr;
-	CpuMatrix& cpu_cast(Matrix& m)const;
-	CpuMatrix& cpu_cast(Matrix* m)const;
-	CpuVector& cpu_cast(Vector* m)const;
 	
 public:
 
@@ -31,6 +28,9 @@ public:
 	CpuMatrix(const CpuMatrix& other);
 	CpuMatrix(const initializer_list<const initializer_list<float>> &list);
 
+	void randn();
+	void clear();
+	
 	CpuMatrix& operator=(const CpuMatrix& other);
 	float at(size_t idx)const;
 	float get(size_t i, size_t j)const;
@@ -54,7 +54,7 @@ public:
 	
 	void affine(Matrix* x, Vector* b, Matrix* ans);
 	
-	void randn();
+	
 	
 	float sum()const;
 	float max()const;

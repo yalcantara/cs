@@ -34,6 +34,9 @@ public:
 	CpuVector(const CpuVector& other);
 	CpuVector(const initializer_list<float> &list);
 
+	void randn();
+	void clear();
+	
 	CpuVector& operator=(const CpuVector& other);
 	float operator[](size_t idx)const;
 	float& operator[](size_t idx);
@@ -58,7 +61,7 @@ public:
 	
 	float dot(const CpuVector b)const;
 
-	void randn();
+	
 	float* ptr()const;
 
 	void print();

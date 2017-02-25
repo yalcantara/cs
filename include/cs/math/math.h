@@ -14,12 +14,21 @@
 #include <cs/math/GpuVector.h>
 #include <stddef.h>
 
-namespace cs{
-namespace math{
-
+namespace cs {
+namespace math {
 
 extern size_t VECTOR_PRINT_MAX;
 extern size_t MATRIX_PRINT_MAX;
+
+void check_null(void* ptr);
+
+CpuMatrix& cpu_cast(Matrix& m);
+CpuMatrix& cpu_cast(Matrix* m);
+CpuVector& cpu_cast(Vector* m);
+
+GpuMatrix& gpu_cast(Matrix& m);
+GpuMatrix& gpu_cast(Matrix* m);
+GpuVector& gpu_cast(Vector* m);
 
 const CpuMatrix randn(size_t m, size_t n);
 const CpuVector randn(size_t length);
@@ -34,6 +43,5 @@ const GpuMatrix operator*(float scalar, const GpuMatrix& a);
 
 } // namespace math
 } // namespace cs
-
 
 #endif // CS_MATH_MATH_H_

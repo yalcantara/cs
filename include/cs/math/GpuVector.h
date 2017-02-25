@@ -31,6 +31,9 @@ public:
 	GpuVector(const GpuVector& other);
 	GpuVector(const initializer_list<float> &list);
 
+	void randn();
+	void clear();
+	
 	GpuVector& operator=(const GpuVector& other);
 
 	const GpuVector operator+(const GpuVector& b) const;
@@ -55,7 +58,7 @@ public:
 	float sum()const;
 	
 	const CpuVector cpu() const;
-	void randn();
+	
 	float* ptr() const;
 	void print() const;
 

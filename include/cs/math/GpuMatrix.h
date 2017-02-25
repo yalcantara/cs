@@ -18,9 +18,6 @@ namespace math {
 class GpuMatrix: public Matrix {
 private:
 	float* devPtr;
-	GpuMatrix& gpu_cast(Matrix& m)const;
-	GpuMatrix& gpu_cast(Matrix* m)const;
-	GpuVector& gpu_cast(Vector* m)const;
 
 public:
 	GpuMatrix(size_t m, size_t n);
@@ -31,6 +28,9 @@ public:
 
 	GpuMatrix& operator=(const GpuMatrix& other);
 
+	void clear();
+	void randn();
+	
 	const GpuMatrix operator+(const GpuMatrix& b) const;
 	const GpuMatrix operator+(const float val) const;
 	const GpuMatrix operator-(const GpuMatrix& b) const;
@@ -59,7 +59,7 @@ public:
 	void affine(Matrix* x, Vector* b, Matrix* ans);
 	
 
-	void randn();
+	
 	float sum() const;
 	
 

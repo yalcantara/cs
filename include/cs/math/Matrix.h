@@ -31,6 +31,7 @@ public:
 	
 	Matrix(size_t m, size_t n);
 	
+	virtual void clear()=0;
 	virtual void affine(Matrix* x, Vector* b, Matrix* ans)=0;
 	
 	virtual void randn()=0;
