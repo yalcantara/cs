@@ -8,36 +8,13 @@
 #include <cs/core/Exception.h>
 #include <cs/gpu/gpu.h>
 #include <cs/math/GpuMatrix.h>
-#include <cs/math/GpuVector.h>
-#include <stdlib.h>
 #include <cs/math/math.h>
+#include <stdlib.h>
 
 namespace cs {
 using namespace core;
 using namespace gpu;
 namespace math {
-
-
-GpuMatrix& GpuMatrix::gpu_cast(Matrix& m)const{
-	return gpu_cast(&m);
-}
-
-GpuMatrix& GpuMatrix::gpu_cast(Matrix* m)const{
-	GpuMatrix* ans = dynamic_cast<GpuMatrix*>(m);
-	if(ans){
-		return *ans;
-	}
-	throw new Exception("Class cast exception. The pointer could not be casted into a GpuMatrix.");
-}
-
-GpuVector& GpuMatrix::gpu_cast(Vector* m)const{
-	GpuVector* ans = dynamic_cast<GpuVector*>(m);
-	if(ans){
-		return *ans;
-	}
-	throw new Exception("Class cast exception. The pointer could not be casted into a GpuVector.");
-}
-
 
 GpuMatrix::GpuMatrix(size_t m, size_t n) :
 		GpuMatrix(m, n, true) {
@@ -74,7 +51,7 @@ GpuMatrix::GpuMatrix(const initializer_list<const initializer_list<float>> &list
 		size_t crtColumns = crt.size();
 		
 		if (listColumns != crtColumns) {
-			throw new Exception(
+			throw Exception(
 					"The number of columns does not match as the first row. First row columns: "
 							+ to_string(listColumns) + ", row " + to_string(i) + " columns: " + to_string(crtColumns)
 							+ ".");
@@ -98,6 +75,17 @@ GpuMatrix::GpuMatrix(const initializer_list<const initializer_list<float>> &list
 	devPtr = gpu_malloc(length, false);
 	copy_cpu_to_gpu(temp, devPtr, length);
 	free(temp);
+}
+
+void GpuMatrix::clear() {
+	gpu_set(devPtr, 0, length);
+}
+
+void GpuMatrix::randn() {
+	CpuMatrix c = cs::math::randn(m, n);
+	
+	float* src = c.ptr();
+	copy_cpu_to_gpu(src, devPtr, length);
 }
 
 GpuMatrix& GpuMatrix::operator=(const GpuMatrix& other) {
@@ -235,7 +223,6 @@ void GpuMatrix::dot(GpuMatrix& b, GpuMatrix& ans) {
 	gpu_dot(devPtr, b.devPtr, ans.devPtr, m, n, b.n);
 }
 
-
 const GpuVector GpuMatrix::dot(const GpuVector& b) const {
 	
 	assert_rows(b.length, n);
@@ -248,7 +235,7 @@ const GpuVector GpuMatrix::dot(const GpuVector& b) const {
 	return ans;
 }
 
-const GpuMatrix GpuMatrix::affine(const GpuMatrix& x, const GpuVector& b)const{
+const GpuMatrix GpuMatrix::affine(const GpuMatrix& x, const GpuVector& b) const {
 	
 	assert_rows(b.length, x.n);
 	GpuMatrix ans = dot(x);
@@ -277,20 +264,11 @@ void GpuMatrix::affine(Matrix* x, Vector* b, Matrix* ans) {
 	gpu_broadcast_sum_rows(A, B, A, gans.m, gans.n);
 }
 
-
-
 float GpuMatrix::sum() const {
 	
 	float ans = gpu_sum(devPtr, length);
 	
 	return ans;
-}
-
-void GpuMatrix::randn(){
-	CpuMatrix c = cs::math::randn(m, n);
-	
-	float* src = c.ptr();
-	copy_cpu_to_gpu(src, devPtr, length);
 }
 
 const CpuMatrix GpuMatrix::cpu() const {
@@ -307,8 +285,6 @@ void GpuMatrix::print() const {
 	CpuMatrix a = cpu();
 	a.print();
 }
-
-
 
 GpuMatrix::~GpuMatrix() {
 	if (devPtr) {

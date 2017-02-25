@@ -8,18 +8,18 @@
  ============================================================================
  */
 
+#include <cs/core/Exception.h>
 #include <cs/core/lang.h>
 #include <cs/math/CpuMatrix.h>
 #include <cs/math/GpuMatrix.h>
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
+#include <cs/nn/Affine.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-#include <cs/nn/Layer.h>
-#include <cs/nn/Affine.h>
 
 using namespace std;
 using namespace cs::core;
@@ -70,18 +70,27 @@ void test1() {
 }
 
 int main(void) {
-	srand(time(NULL));
-	
-	Layer* l = new Affine();
-
-	
-	GpuMatrix x = { { 1, 2 }, { 3, 4 } };
-	
-	Matrix& fx = l->foward(x);
-	
-	fx.print();
-	
-	println("klk");
+	try {
+		srand(time(NULL));
+		
+		Affine* l = new Affine();
+		l->use_gpu(false);
+		
+		CpuMatrix x = { { 1, 2 }, { 3, 4 } };
+		CpuMatrix y = { { 0 }, { 1 } };
+		
+		Matrix& base = x;
+		base.print();
+		
+		l->set_dim(x.n, 1);
+		l->init();
+		
+		
+		println("klk");
+	} catch (Exception& ex) {
+		println("Exception thrown");
+		println(ex.what());
+	}
 	return 0;
 }
 

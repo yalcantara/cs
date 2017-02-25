@@ -12,8 +12,6 @@
 #include <cs/math/GpuMatrix.h>
 #include <cs/math/CpuMatrix.h>
 
-
-
 namespace cs {
 using namespace math;
 namespace nn {
@@ -23,22 +21,22 @@ protected:
 	bool gpu = false;
 	size_t in;
 	size_t out;
-	
+
 public:
 	Layer();
-	
-	
+
 	void use_gpu(bool val);
-	
+
 	void set_dim(size_t input, size_t output);
 	virtual void init()=0;
-	
-	size_t in_dim()const;
-	size_t out_dim()const;
-	
-	virtual Matrix& foward(Matrix& x)=0;
 
-	
+	size_t in_dim() const;
+	size_t out_dim() const;
+
+	virtual Matrix& foward(Matrix& x)=0;
+	virtual Matrix& backward(Matrix& dg)=0;
+	virtual void update(float alpha)=0;
+
 	virtual ~Layer();
 };
 

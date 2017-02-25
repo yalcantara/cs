@@ -30,5 +30,4 @@ src/cs/nn \
 src/cs/math \
 src/cs/gpu \
 src/cs/core \
-include/cs/math \
 

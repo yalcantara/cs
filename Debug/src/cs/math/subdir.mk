@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../src/cs/math/GpuVector.cpp \
 ../src/cs/math/Matrix.cpp \
 ../src/cs/math/RowView.cpp \
+../src/cs/math/Vector.cpp \
 ../src/cs/math/math.cpp 
 
 OBJS += \
@@ -19,6 +20,7 @@ OBJS += \
 ./src/cs/math/GpuVector.o \
 ./src/cs/math/Matrix.o \
 ./src/cs/math/RowView.o \
+./src/cs/math/Vector.o \
 ./src/cs/math/math.o 
 
 CPP_DEPS += \
@@ -28,6 +30,7 @@ CPP_DEPS += \
 ./src/cs/math/GpuVector.d \
 ./src/cs/math/Matrix.d \
 ./src/cs/math/RowView.d \
+./src/cs/math/Vector.d \
 ./src/cs/math/math.d 
 
 

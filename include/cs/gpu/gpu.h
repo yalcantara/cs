@@ -26,6 +26,7 @@ void copy_gpu_to_cpu(float* src, float* dst, size_t length);
 void copy_gpu_to_gpu(float* src, float* dst, size_t length);
 
 void gpu_free(float* devPtr);
+void gpu_set(float* a, float val, size_t l);
 float* gpu_malloc(size_t length, bool clear);
 
 void gpu_add(float* a, float* b, float* c, size_t l);

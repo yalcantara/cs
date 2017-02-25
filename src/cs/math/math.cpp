@@ -5,8 +5,10 @@
  *      Author: Yaison Alcantara
  */
 
+#include <cs/core/Exception.h>
 #include <cs/math/CpuMatrix.h>
 #include <cs/math/CpuVector.h>
+#include <cs/math/GpuMatrix.h>
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
 #include <pthread.h>
@@ -16,11 +18,65 @@
 #include <limits>
 
 namespace cs {
+using namespace core;
 namespace math {
 
 size_t VECTOR_PRINT_MAX = 100;
 size_t MATRIX_PRINT_MAX = 100;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+void check_null(void* ptr){
+	if(ptr == nullptr || ptr == NULL){
+		throw Exception("Null pointer exception");
+	}
+}
+
+CpuMatrix& cpu_cast(Matrix& m) {
+	return cpu_cast(&m);
+}
+
+CpuMatrix& cpu_cast(Matrix* m) {
+	check_null(m);
+	CpuMatrix* ans = dynamic_cast<CpuMatrix*>(m);
+	if (ans) {
+		return *ans;
+	}
+	throw Exception("Class cast exception. The pointer could not be casted into a CpuMatrix.");
+}
+
+CpuVector& cpu_cast(Vector* m) {
+	check_null(m);
+	CpuVector* ans = dynamic_cast<CpuVector*>(m);
+	if (ans) {
+		return *ans;
+	}
+	throw Exception("Class cast exception. The pointer could not be casted into a CpuVector.");
+}
+
+
+GpuMatrix& gpu_cast(Matrix& m){
+	return gpu_cast(&m);
+}
+
+GpuMatrix& gpu_cast(Matrix* m){
+	check_null(m);
+	GpuMatrix* ans = dynamic_cast<GpuMatrix*>(m);
+	if(ans){
+		return *ans;
+	}
+	throw Exception("Class cast exception. The pointer could not be casted into a GpuMatrix.");
+}
+
+GpuVector& gpu_cast(Vector* m){
+	check_null(m);
+	GpuVector* ans = dynamic_cast<GpuVector*>(m);
+	if(ans){
+		return *ans;
+	}
+	throw Exception("Class cast exception. The pointer could not be casted into a GpuVector.");
+}
+
+
 
 const CpuMatrix randn(size_t m, size_t n) {
 	CpuMatrix ans = CpuMatrix(m, n, false);
@@ -40,7 +96,7 @@ const CpuVector randn(size_t length) {
 void randn(float* arr, size_t length) {
 	
 	for (size_t i = 0; i < length; i++) {
-		arr[i] = (float)grandn(0, 1.0);
+		arr[i] = (float) grandn(0, 1.0);
 	}
 }
 
@@ -84,7 +140,6 @@ const CpuVector operator*(float scalar, const CpuVector& a) {
 const CpuMatrix operator*(float scalar, const CpuMatrix& a) {
 	return a * scalar;
 }
-
 
 const GpuVector operator*(float scalar, const GpuVector& a) {
 	return a * scalar;

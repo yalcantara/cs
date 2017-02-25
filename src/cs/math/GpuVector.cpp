@@ -46,6 +46,17 @@ GpuVector::GpuVector(const initializer_list<float> &list) :
 	copy_cpu_to_gpu(src, devPtr, length);
 }
 
+void GpuVector::randn(){
+	CpuVector tmp = cs::math::randn(length);
+	
+	float* src = tmp.ptr();
+	copy_cpu_to_gpu(src, devPtr, length);
+}
+
+void GpuVector::clear(){
+	gpu_set(devPtr, 0, length);
+}
+
 GpuVector& GpuVector::operator=(const GpuVector& other) {
 	
 	if (&other == this) {
@@ -196,13 +207,6 @@ const CpuVector GpuVector::cpu() const {
 	copy_gpu_to_cpu(devPtr, dest, length);
 	
 	return ans;
-}
-
-void GpuVector::randn(){
-	CpuVector tmp = cs::math::randn(length);
-	
-	float* src = tmp.ptr();
-	copy_cpu_to_gpu(src, devPtr, length);
 }
 
 float* GpuVector::ptr() const {

@@ -55,16 +55,25 @@ CpuVector::CpuVector(const initializer_list<float> &list) :
 void CpuVector::check_index(size_t idx) const {
 	if (idx >= length) {
 		throw Exception(
-				"Index out of bounds. Expected < " + to_string(length) + ", but got: "
-						+ to_string(idx) + " instead.");
+				"Index out of bounds. Expected < " + to_string(length) + ", but got: " + to_string(idx) + " instead.");
 	}
 }
 
 void CpuVector::check_same_length(const CpuVector& other) const {
 	if (other.length != length) {
 		throw Exception(
-				"The length must be the same. Expected " + to_string(length) + ", but got: "
-						+ to_string(other.length) + " instead.");
+				"The length must be the same. Expected " + to_string(length) + ", but got: " + to_string(other.length)
+						+ " instead.");
+	}
+}
+
+void CpuVector::randn() {
+	cs::math::randn(arr, length);
+}
+
+void CpuVector::clear() {
+	for (size_t i = 0; i < length; i++) {
+		arr[i] = 0.0;
 	}
 }
 
@@ -83,7 +92,7 @@ CpuVector& CpuVector::operator=(const CpuVector& other) {
 		arr = (float*) malloc(sizeof(float) * length);
 		copy_float(other.arr, arr, length);
 		
-	}else {
+	} else {
 		check_same_length(other);
 		//the vector is already initialized
 		//just copy
@@ -332,7 +341,6 @@ float CpuVector::stdev() const {
 	return sqrt(var());
 }
 
-
 float CpuVector::dot(const CpuVector b) const {
 	
 	size_t l = length;
@@ -346,11 +354,6 @@ float CpuVector::dot(const CpuVector b) const {
 	}
 	
 	return ans;
-}
-
-
-void CpuVector::randn(){
-	cs::math::randn(arr, length);
 }
 
 float* CpuVector::ptr() const {

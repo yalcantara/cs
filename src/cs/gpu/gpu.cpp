@@ -91,6 +91,10 @@ void gpu_free(float* devPtr) {
 	check_cuda(cudaFree(devPtr));
 }
 
+void gpu_set(float* a, float val, size_t l){
+	check_cuda(cudaMemset(a, val, sizeof(float) * l));
+}
+
 float* gpu_malloc(size_t length, bool clear) {
 	
 	if (length < 1) {
@@ -100,7 +104,7 @@ float* gpu_malloc(size_t length, bool clear) {
 	float* devPtr;
 	check_cuda(cudaMalloc(&devPtr, sizeof(float) * length));
 	if (clear) {
-		check_cuda(cudaMemset(devPtr, 0, sizeof(float) * length));
+		gpu_set(devPtr, 0, length);
 	}
 	
 	return devPtr;

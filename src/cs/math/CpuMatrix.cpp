@@ -18,25 +18,6 @@ namespace cs {
 using namespace core;
 namespace math {
 
-CpuMatrix& CpuMatrix::cpu_cast(Matrix& m) const {
-	return cpu_cast(&m);
-}
-
-CpuMatrix& CpuMatrix::cpu_cast(Matrix* m) const {
-	CpuMatrix* ans = dynamic_cast<CpuMatrix*>(m);
-	if (ans) {
-		return *ans;
-	}
-	throw new Exception("Class cast exception. The pointer could not be casted into a CpuMatrix.");
-}
-
-CpuVector& CpuMatrix::cpu_cast(Vector* m) const {
-	CpuVector* ans = dynamic_cast<CpuVector*>(m);
-	if (ans) {
-		return *ans;
-	}
-	throw new Exception("Class cast exception. The pointer could not be casted into a CpuVector.");
-}
 
 CpuMatrix::CpuMatrix(size_t m, size_t n) :
 		CpuMatrix(m, n, true) {
@@ -77,7 +58,7 @@ CpuMatrix::CpuMatrix(const initializer_list<const initializer_list<float>> &list
 		size_t crtColumns = crt.size();
 		
 		if (listColumns != crtColumns) {
-			throw new Exception(
+			throw Exception(
 					"The number of columns does not match as the first row. First row columns: "
 							+ to_string(listColumns) + ", row " + to_string(i) + " columns: " + to_string(crtColumns)
 							+ ".");
@@ -96,6 +77,16 @@ CpuMatrix::CpuMatrix(const initializer_list<const initializer_list<float>> &list
 		for (size_t j = 0; j < listColumns; j++) {
 			arr[i * n + j] = rowStart[j];
 		}
+	}
+}
+
+void CpuMatrix::randn() {
+	cs::math::randn(arr, length);
+}
+
+void CpuMatrix::clear() {
+	for(size_t i = 0; i < length; i++){
+		arr[i] = 0.0;
 	}
 }
 
@@ -388,7 +379,6 @@ void CpuMatrix::affine(Matrix* x, Vector* b, Matrix* ans) {
 	CpuMatrix& cans = cpu_cast(ans);
 	
 	assert_rows(cb.length, cx.n);
-	assert_rows(cans.m, cx.m);
 	dot(cx, cans);
 	
 	float* A = cans.arr;
@@ -401,9 +391,7 @@ void CpuMatrix::affine(Matrix* x, Vector* b, Matrix* ans) {
 	}
 }
 
-void CpuMatrix::randn() {
-	cs::math::randn(arr, length);
-}
+
 
 float CpuMatrix::sum() const {
 	
