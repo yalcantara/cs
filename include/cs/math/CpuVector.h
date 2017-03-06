@@ -23,11 +23,9 @@ class CpuVector:public Vector {
 private:
 	float* arr;
 	
-	void check_index(size_t idx)const;
-	void check_same_length(const CpuVector& other)const;
+	
 
 public:
-	const size_t length;
 
 	CpuVector(size_t length);
 	CpuVector(size_t length, bool clear);
@@ -60,11 +58,13 @@ public:
 	float stdev()const;
 	
 	float dot(const CpuVector b)const;
-
+	void copy(Vector& dest)const;
+	void copy(CpuVector& dest)const;
+	
 	
 	float* ptr()const;
 
-	void print();
+	void print()const;
 	virtual ~CpuVector();
 };
 } // namespace math

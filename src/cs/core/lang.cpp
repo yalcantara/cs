@@ -6,13 +6,22 @@
  */
 
 
-#include "cs/core/lang.h"
+#include <cs/core/Exception.h>
+#include <stddef.h>
+#include <cs/core/lang.h>
+#include <cstdio>
+#include <iostream>
+#include <string>
 
 namespace cs{
 namespace core{
 
 
-
+void check_null(const void* ptr) {
+	if (ptr == nullptr || ptr == NULL) {
+		throw Exception("Null pointer exception");
+	}
+}
 
 
 void copy_float(float* src, float* dest,  size_t length){

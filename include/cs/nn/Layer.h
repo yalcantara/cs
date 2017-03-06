@@ -33,10 +33,11 @@ public:
 	size_t in_dim() const;
 	size_t out_dim() const;
 
-	virtual Matrix& foward(Matrix& x)=0;
-	virtual Matrix& backward(Matrix& dg)=0;
+	virtual Matrix& foward(const Matrix& x)=0;
+	virtual Matrix& backward(const Matrix& dg)=0;
 	virtual void update(float alpha)=0;
 
+	virtual void print()const=0;
 	virtual ~Layer();
 };
 

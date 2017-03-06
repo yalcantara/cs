@@ -47,12 +47,13 @@ public:
 	const CpuMatrix operator/(float scalar)const;
 	const CpuMatrix operator^(float exp)const;
 
-	void dot(CpuMatrix& b, CpuMatrix& ans);
+	void dot(const CpuMatrix& b, CpuMatrix& ans)const;
 	const CpuMatrix dot(const CpuMatrix& b)const;
 	const CpuVector dot(const CpuVector& b) const;
 	const CpuMatrix affine(const CpuMatrix& x, const CpuVector& b)const;
 	
-	void affine(Matrix* x, Vector* b, Matrix* ans);
+	void affine(const Matrix& x, const Vector& b, Matrix& ans)const;
+	void affine(const CpuMatrix& x, const CpuVector& b, CpuMatrix& ans)const;
 	
 	
 	
@@ -61,6 +62,8 @@ public:
 	float min()const;
 	float avg()const;
 
+	void copy(Matrix& dest)const;
+	void copy(CpuMatrix& dest)const;
 	float* ptr()const;
 
 	void print()const;

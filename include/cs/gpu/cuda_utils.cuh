@@ -12,12 +12,17 @@
 namespace cs{
 namespace gpu{
 
+
+extern unsigned int BLOCK_SIZE_2D;
+extern unsigned int BLOCK_SIZE_1D;
+
 void cuda_matrix_mult(float* a, float* b, float* dest, size_t m, size_t n);
 void cuda_vector_mult(float* a, float* b, float* dest, size_t length);
 void cuda_vector_div(float* a, float* b, float* dest, size_t length);
-void cuda_vector_pow(float* a, float exp, float* dest, size_t l);
+void cuda_vector_pow(float* a, float exponent, float* dest, size_t l);
 
 void cuda_broadcast_sum_rows(float* a, float* b, float* dest, size_t m, size_t n);
+void cuda_sum_rows(float* a, float* dest, size_t m, size_t n);
 
 } // namespace gpu
 } // namespace cs

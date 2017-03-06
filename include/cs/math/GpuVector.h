@@ -23,8 +23,7 @@ private:
 	void check_same_length(const GpuVector& b)const;
 
 public:
-	const size_t length;
-
+	
 	GpuVector(size_t length);
 	GpuVector(size_t length, bool clear);
 	GpuVector(const CpuVector& other);
@@ -56,6 +55,9 @@ public:
 	void powi(const float exp);
 	
 	float sum()const;
+	
+	void copy(Vector& dest)const;
+	void copy(GpuVector& dest)const;
 	
 	const CpuVector cpu() const;
 	

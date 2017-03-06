@@ -124,4 +124,25 @@ src/cs/math/math.o : ../src/cs/math/math.cpp \
     /usr/include/x86_64-linux-gnu/bits/nan.h \
     /usr/include/x86_64-linux-gnu/bits/mathdef.h \
     /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
-    /usr/include/c++/4.8/limits
+    /usr/include/c++/4.8/limits \
+    /home/yaison/cuda-workspace/cs/include/cs/core/lang.h \
+    /usr/include/c++/4.8/iostream \
+    /usr/include/c++/4.8/ostream \
+    /usr/include/c++/4.8/ios \
+    /usr/include/c++/4.8/bits/ios_base.h \
+    /usr/include/c++/4.8/bits/locale_classes.h \
+    /usr/include/c++/4.8/bits/locale_classes.tcc \
+    /usr/include/c++/4.8/streambuf \
+    /usr/include/c++/4.8/bits/streambuf.tcc \
+    /usr/include/c++/4.8/bits/basic_ios.h \
+    /usr/include/c++/4.8/bits/locale_facets.h \
+    /usr/include/c++/4.8/cwctype \
+    /usr/include/wctype.h \
+    /usr/include/x86_64-linux-gnu/c++/4.8/bits/ctype_base.h \
+    /usr/include/c++/4.8/bits/streambuf_iterator.h \
+    /usr/include/x86_64-linux-gnu/c++/4.8/bits/ctype_inline.h \
+    /usr/include/c++/4.8/bits/locale_facets.tcc \
+    /usr/include/c++/4.8/bits/basic_ios.tcc \
+    /usr/include/c++/4.8/bits/ostream.tcc \
+    /usr/include/c++/4.8/istream \
+    /usr/include/c++/4.8/bits/istream.tcc

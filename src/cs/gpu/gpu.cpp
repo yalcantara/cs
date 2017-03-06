@@ -91,7 +91,7 @@ void gpu_free(float* devPtr) {
 	check_cuda(cudaFree(devPtr));
 }
 
-void gpu_set(float* a, float val, size_t l){
+void gpu_set(float* a, float val, size_t l) {
 	check_cuda(cudaMemset(a, val, sizeof(float) * l));
 }
 
@@ -122,6 +122,12 @@ void gpu_add_inplace(float* a, float* b, size_t l) {
 	init();
 	
 	const float alpha = 1;
+	check_cublas(cublasSaxpy(cublas_handle, l, &alpha, b, 1, a, 1));
+}
+
+void gpu_add_inplace(float* a, float* b, const float alpha, size_t l) {
+	init();
+	
 	check_cublas(cublasSaxpy(cublas_handle, l, &alpha, b, 1, a, 1));
 }
 
@@ -192,14 +198,39 @@ float gpu_sum(float* a, size_t l) {
 }
 
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n, size_t p) {
+	gpu_dot(a, false, b, c, m, n, p);
+}
+
+void gpu_dot(float* a, bool transA, float* b, float* c, size_t m, size_t n, size_t p) {
 	init();
 	const float alpha = 1.0;
 	const float beta = 0.0;
 	
 	//Since cublas assumes column major, and our structure are row major, we need to change the order.
-	check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, p, m, n, &alpha, b, p, a, n, &beta, c, p));
-	
+	// The logic is that (AB)^T = B^T x A^T.
+	if (transA) {
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_T, p, m, n, &alpha, b, p, a, m, &beta, c, p));
+	} else {
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, p, m, n, &alpha, b, p, a, n, &beta, c, p));
+	}
 }
+
+
+void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t p) {
+	init();
+	const float alpha = 1.0;
+	const float beta = 0.0;
+	
+	//Since cublas assumes column major, and our structure are row major, we need to change the order.
+	// The logic is that (AB)^T = B^T x A^T.
+	if (transB) {
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, p, m, n, &alpha, b, n, a, p, &beta, c, n));
+	} else {
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, p, m, n, &alpha, b, p, a, n, &beta, c, p));
+	}
+}
+
+
 
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n) {
 	init();
@@ -210,8 +241,12 @@ void gpu_dot(float* a, float* b, float* c, size_t m, size_t n) {
 	check_cublas(cublasSgemv(cublas_handle, CUBLAS_OP_T, n, m, &alpha, a, n, b, 1, &beta, c, 1));
 }
 
-void gpu_broadcast_sum_rows(float* a, float* b, float* c, size_t m, size_t n){
+void gpu_broadcast_sum_rows(float* a, float* b, float* c, size_t m, size_t n) {
 	cuda_broadcast_sum_rows(a, b, c, m, n);
+}
+
+void gpu_sum_rows(float* a, float* dest, size_t m, size_t n){
+	cuda_sum_rows(a, dest, m, n);
 }
 
 } // namespace gpu

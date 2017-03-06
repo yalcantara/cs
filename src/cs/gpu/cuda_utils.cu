@@ -5,11 +5,11 @@
  *      Author: Yaison Alcantara
  */
 
-#define BLOCK_SIZE_2D 16
-#define BLOCK_SIZE_1D 256
-
 namespace cs {
 namespace gpu {
+
+unsigned int BLOCK_SIZE_2D = 16;
+unsigned int BLOCK_SIZE_1D = 256;
 
 __global__ void cuda_kernel_matrix_mult(float* a, float* b, float* dest, unsigned int m, unsigned int n) {
 	
@@ -18,6 +18,18 @@ __global__ void cuda_kernel_matrix_mult(float* a, float* b, float* dest, unsigne
 	if (i < m && j < n) {
 		unsigned int absIdx = i * n + j;
 		dest[absIdx] = a[absIdx] * b[absIdx];
+	}
+}
+
+__global__ void cuda_kernel_matrix_sum_rows(float* a, float* dest, unsigned int m, unsigned int n) {
+	
+	unsigned int j = blockIdx.x * blockDim.x + threadIdx.x;
+	if (j < n) {
+		float sum = 0.0;
+		for (unsigned int i = 0; i < m; i++) {
+			sum += a[i * n + j];
+		}
+		dest[j] = sum;
 	}
 }
 
@@ -89,7 +101,7 @@ void cuda_vector_div(float* a, float* b, float* dest, size_t length) {
 	cuda_kernel_vector_div<<<grid, block>>>(a, b, dest, length);
 }
 
-void cuda_vector_pow(float* a, float exp, float* dest, size_t l) {
+void cuda_vector_pow(float* a, float exponent, float* dest, size_t l) {
 	
 	dim3 block(BLOCK_SIZE_1D);
 	
@@ -97,7 +109,7 @@ void cuda_vector_pow(float* a, float exp, float* dest, size_t l) {
 	
 	dim3 grid(blocksX);
 	
-	kernel_vector_pow<<<grid, block>>>(a, exp, dest, l);
+	kernel_vector_pow<<<grid, block>>>(a, exponent, dest, l);
 }
 
 void cuda_broadcast_sum_rows(float* a, float* b, float* dest, size_t m, size_t n) {
@@ -110,6 +122,17 @@ void cuda_broadcast_sum_rows(float* a, float* b, float* dest, size_t m, size_t n
 	dim3 grid(blocksX, blocksY);
 	
 	kernel_broadcast_sum_rows<<<grid, block>>>(a, b, dest, m, n);
+}
+
+void cuda_sum_rows(float* a, float* dest, size_t m, size_t n) {
+	
+	dim3 block(BLOCK_SIZE_1D);
+	//Note: in this case is n as the number of threads to use, cuz each thread is doing a reduce operation on the rows
+	unsigned int blocksX = (unsigned int) ceil(n / (double) BLOCK_SIZE_1D);
+	
+	dim3 grid(blocksX);
+	
+	cuda_kernel_matrix_sum_rows<<<grid, block>>>(a, dest, m, n);
 }
 
 }

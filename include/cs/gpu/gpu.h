@@ -31,6 +31,7 @@ float* gpu_malloc(size_t length, bool clear);
 
 void gpu_add(float* a, float* b, float* c, size_t l);
 void gpu_add_inplace(float* a, float* b, size_t l);
+void gpu_add_inplace(float* a, float* b, const float alpha, size_t l);
 void gpu_sub(float* a, float* b, float* c, size_t l);
 void gpu_sub_inplace(float* a, float* b, size_t l);
 void gpu_sub(float* a, float* b, float* c, size_t l);
@@ -48,8 +49,11 @@ void gpu_pow_inplace(float* src, float exp, size_t l);
 float gpu_sum(float* a, size_t l);
 
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n, size_t p);
+void gpu_dot(float* a, bool transA, float* b, float* c, size_t m, size_t n, size_t p);
+void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t p);
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n);
 void gpu_broadcast_sum_rows(float* a, float* b, float* c, size_t m, size_t n);
+void gpu_sum_rows(float* a, float* dest, size_t m, size_t n);
 
 
 //activation

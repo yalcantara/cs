@@ -24,7 +24,7 @@ CpuVector::CpuVector(size_t length) :
 }
 
 CpuVector::CpuVector(size_t length, bool clear) :
-		length(length) {
+		Vector(length) {
 	
 	if (length < 1) {
 		throw Exception("Invalid length " + to_string(length) + ".");
@@ -49,21 +49,6 @@ CpuVector::CpuVector(const initializer_list<float> &list) :
 	
 	for (size_t i = 0; i < length; i++) {
 		arr[i] = *(start + i);
-	}
-}
-
-void CpuVector::check_index(size_t idx) const {
-	if (idx >= length) {
-		throw Exception(
-				"Index out of bounds. Expected < " + to_string(length) + ", but got: " + to_string(idx) + " instead.");
-	}
-}
-
-void CpuVector::check_same_length(const CpuVector& other) const {
-	if (other.length != length) {
-		throw Exception(
-				"The length must be the same. Expected " + to_string(length) + ", but got: " + to_string(other.length)
-						+ " instead.");
 	}
 }
 
@@ -356,11 +341,19 @@ float CpuVector::dot(const CpuVector b) const {
 	return ans;
 }
 
+void CpuVector::copy(Vector& dest) const {
+	copy(cpu_cast(dest));
+}
+void CpuVector::copy(CpuVector& dest) const {
+	check_same_length(dest);
+	copy_float(arr, dest.arr, length);
+}
+
 float* CpuVector::ptr() const {
 	return arr;
 }
 
-void CpuVector::print() {
+void CpuVector::print()const {
 	size_t l = std::min(VECTOR_PRINT_MAX, length);
 	
 	if (l > VECTOR_PRINT_MAX) {

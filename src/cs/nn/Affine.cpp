@@ -11,9 +11,12 @@
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
 #include <cs/nn/Affine.h>
+#include <cs/core/lang.h>
 #include <stddef.h>
+#include <cs/nn/gpu_layers.cuh>
 
 namespace cs {
+using namespace core;
 using namespace math;
 namespace nn {
 
@@ -62,18 +65,8 @@ void Affine::init() {
 		w = new CpuMatrix(in, out);
 		w->randn();
 		
-		CpuMatrix m = {{0, 1}, {0, 2}};
-		
-		float* aa = m.ptr();
-		float* bb = dynamic_cast<CpuMatrix&>(*w).ptr();
-		
-		for(int i =0; i < m.length; i++){
-			bb[i] = aa[i];
-		}
-		
-		
 		b = new CpuVector(out);
-		//b->randn();
+		b->randn();
 		
 		dw = new CpuMatrix(in, out);
 		db = new CpuVector(out);
@@ -118,44 +111,62 @@ void Affine::init_dx(size_t m, size_t n) {
 		}
 		
 		delete dx;
-		if (gpu) {
-			dx = new GpuMatrix(m, n);
-		} else {
-			dx = new CpuMatrix(m, n);
-		}
-	} else {
-		if (gpu) {
-			dx = new GpuMatrix(m, n);
-		} else {
-			dx = new CpuMatrix(m, n);
-		}
 	}
+	
+	if (gpu) {
+		dx = new GpuMatrix(m, n);
+	} else {
+		dx = new CpuMatrix(m, n);
+	}
+	
 }
 
-Matrix& Affine::foward(Matrix& x) {
-	this->x = &x;
+void Affine::set_weights(const Matrix& weights) {
+	weights.copy(*w);
+}
+
+void Affine::set_bias(const Vector& bias) {
+	bias.copy(*b);
+}
+
+
+Matrix& Affine::get_dx()const{
+	check_null(dx);
+	return *dx;
+}
+
+Matrix& Affine::foward(const Matrix& x) {
 	init_fx(x.m);
-	x.affine(w, b, fx);
+	this->x = const_cast<Matrix*>(&x);
+	
+	x.affine(*w, *b, *fx);
 	return *fx;
 }
 
-Matrix& Affine::backward(Matrix& dg){
-	if(gpu){
-		
-	}
-	
+Matrix& Affine::backward(const Matrix& dg) {
 	init_dx(x->m, x->n);
 	
-	dx->clear();
-	dw->clear();
-	db->clear();
+	if (gpu) {
+		return gpu_backward(gpu_cast(dg));
+	}
 	
-	return cpu_backward(dg);
+	return cpu_backward(cpu_cast(dg));
 }
 
-Matrix& Affine::cpu_backward(Matrix& dg) {
+Matrix& Affine::gpu_backward(const GpuMatrix& dg) {
 	
-	CpuMatrix& cdg = cpu_cast(dg);
+	GpuMatrix& x = gpu_cast(this->x);
+	GpuMatrix& w = gpu_cast(this->w);
+	
+	GpuMatrix& dx = gpu_cast(this->dx);
+	GpuMatrix& dw = gpu_cast(this->dw);
+	GpuVector& db = gpu_cast(this->db);
+	
+	affine_dx(x, w, dg, dx, dw, db);
+	return dx;
+}
+
+Matrix& Affine::cpu_backward(const CpuMatrix& dg) {
 	
 	CpuMatrix& x = cpu_cast(this->x);
 	CpuMatrix& w = cpu_cast(this->w);
@@ -164,17 +175,18 @@ Matrix& Affine::cpu_backward(Matrix& dg) {
 	CpuMatrix& dw = cpu_cast(this->dw);
 	CpuVector& db = cpu_cast(this->db);
 	
+	dx.clear();
+	dw.clear();
+	db.clear();
+	
 	size_t m = x.m;
 	size_t n = x.n;
 	size_t p = w.n;
 	
-	init_dx(m, n);
-	
-	float* DG = cdg.ptr();
-	
 	float* X = x.ptr();
 	float* W = w.ptr();
 	
+	float* DG = dg.ptr();
 	float* DX = dx.ptr();
 	float* DW = dw.ptr();
 	float* DB = db.ptr();
@@ -200,6 +212,31 @@ Matrix& Affine::cpu_backward(Matrix& dg) {
 
 void Affine::update(float alpha) {
 	
+	if (gpu) {
+		gpu_update(alpha);
+	} else {
+		cpu_update(alpha);
+	}
+}
+
+void Affine::gpu_update(float alpha) {
+	
+	GpuMatrix& w = gpu_cast(this->w);
+	GpuVector& b = gpu_cast(this->b);
+	
+	GpuMatrix& dw = gpu_cast(this->dw);
+	GpuVector& db = gpu_cast(this->db);
+	
+	size_t m = x->n;
+	float scalar = -alpha / m;
+	
+	update_params(w, dw, scalar);
+	update_params(b, db, scalar);
+	
+}
+
+void Affine::cpu_update(float alpha) {
+	
 	CpuMatrix& w = cpu_cast(this->w);
 	CpuVector& b = cpu_cast(this->b);
 	
@@ -207,19 +244,46 @@ void Affine::update(float alpha) {
 	CpuVector& db = cpu_cast(this->db);
 	
 	float* W = w.ptr();
-	float* B = w.ptr();
+	float* B = b.ptr();
 	
-	float* DW = db.ptr();
+	float* DW = dw.ptr();
 	float* DB = db.ptr();
 	
+	size_t m = x->n;
 	size_t length = in * out;
-	for (int i = 0; i < length; i++) {
-		W[i] -= DW[i] * alpha;
+	
+	//for efficiency, instead of using Wj := Wj - (alpha/m)*DWj
+	//we pre-compute (alpha/m) which is just a constant.
+	
+	float scalar = -alpha / m;
+	for (int j = 0; j < length; j++) {
+		W[j] += scalar * DW[j];
 	}
 	
 	for (int j = 0; j < out; j++) {
-		B[j] -= -DB[j] * alpha;
+		B[j] += scalar * DB[j];
 	}
+}
+
+void Affine::print() const {
+	
+	println();
+	println("Affine");
+	println("------------------------------------------------------------------");
+	println("Weights:");
+	w->print();
+	
+	println("Bias:");
+	b->print();
+	
+	println("DW:");
+	dw->print();
+	
+	println("DB:");
+	db->print();
+	println("------------------------------------------------------------------");
+	println();
+	
 }
 
 Affine::~Affine() {

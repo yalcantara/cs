@@ -32,9 +32,7 @@ public:
 	void randn();
 	
 	const GpuMatrix operator+(const GpuMatrix& b) const;
-	const GpuMatrix operator+(const float val) const;
 	const GpuMatrix operator-(const GpuMatrix& b) const;
-	const GpuMatrix operator-(const float val) const;
 	const GpuMatrix operator-() const;
 	const GpuMatrix operator*(const GpuMatrix& b) const;
 	const GpuMatrix operator*(const float scalar) const;
@@ -51,19 +49,20 @@ public:
 	void powi(const float exp);
 
 	const GpuMatrix dot(const GpuMatrix& b) const;
-	void dot(GpuMatrix& b, GpuMatrix& ans);
+	void dot(const GpuMatrix& b, GpuMatrix& ans)const;
 	
 	const GpuVector dot(const GpuVector& b) const;
 	const GpuMatrix affine(const GpuMatrix& x, const GpuVector& b)const;
 	
-	void affine(Matrix* x, Vector* b, Matrix* ans);
-	
+	void affine(const Matrix& x, const Vector& b, Matrix& ans)const;
+	void affine(const GpuMatrix& x, const GpuVector& b, GpuMatrix& ans) const;
 
 	
 	float sum() const;
 	
 
 	bool equals(const GpuMatrix& other, float e);
+	void copy(Matrix& dest)const;
 	const CpuMatrix cpu() const;
 	float* ptr() const;
 	virtual void print() const;

@@ -27,7 +27,6 @@ void Layer::set_dim(size_t input, size_t output){
 }
 
 Layer::~Layer() {
-	println("deleted layer");
 }
 
 } // namespace nn

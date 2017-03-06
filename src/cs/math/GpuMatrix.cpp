@@ -128,6 +128,17 @@ const GpuMatrix GpuMatrix::operator-() const {
 	return (*this) * -1;
 }
 
+const GpuMatrix GpuMatrix::operator-(const GpuMatrix& b) const {
+	check_same_dimensions(b);
+	
+	GpuMatrix ans = GpuMatrix(m, n, false);
+	
+	gpu_sub(devPtr, b.devPtr, ans.devPtr, length);
+	
+	return ans;
+}
+
+
 const GpuMatrix GpuMatrix::operator*(const GpuMatrix& b) const {
 	check_same_dimensions(b);
 	GpuMatrix ans = GpuMatrix(m, n, false);
@@ -201,19 +212,19 @@ void GpuMatrix::powi(const float exp) {
 	gpu_pow_inplace(devPtr, exp, length);
 }
 
-const GpuMatrix GpuMatrix::dot(const GpuMatrix& b) const {
 	
+const GpuMatrix GpuMatrix::dot(const GpuMatrix& b) const {
 	assert_rows(b.m, n);
 	
 	const size_t p = b.n;
-	GpuMatrix ans = GpuMatrix(m, p);
+	GpuMatrix ans = GpuMatrix(m, p, false);
 	
 	gpu_dot(devPtr, b.devPtr, ans.devPtr, m, n, p);
 	
 	return ans;
 }
 
-void GpuMatrix::dot(GpuMatrix& b, GpuMatrix& ans) {
+void GpuMatrix::dot(const GpuMatrix& b, GpuMatrix& ans)const {
 	
 	assert_rows(b.m, n);
 	
@@ -227,7 +238,7 @@ const GpuVector GpuMatrix::dot(const GpuVector& b) const {
 	
 	assert_rows(b.length, n);
 	
-	GpuVector ans = GpuVector(m);
+	GpuVector ans = GpuVector(m, false);
 	float* B = b.ptr();
 	float* C = ans.ptr();
 	gpu_dot(devPtr, B, C, m, n);
@@ -237,31 +248,28 @@ const GpuVector GpuMatrix::dot(const GpuVector& b) const {
 
 const GpuMatrix GpuMatrix::affine(const GpuMatrix& x, const GpuVector& b) const {
 	
+	size_t p = x.n;
+	assert_rows(b.length, p);
+	GpuMatrix ans = GpuMatrix(m, p, false);
+	
+	affine(x, b, ans);
+	
+	return ans;
+}
+
+void GpuMatrix::affine(const Matrix& x, const Vector& b, Matrix& ans)const {
+	affine(gpu_cast(x), gpu_cast(b), gpu_cast(ans));
+}
+
+void GpuMatrix::affine(const GpuMatrix& x, const GpuVector& b, GpuMatrix& ans) const {
+	
 	assert_rows(b.length, x.n);
-	GpuMatrix ans = dot(x);
+	dot(x, ans);
 	
 	float* A = ans.devPtr;
 	float* B = b.ptr();
 	
 	gpu_broadcast_sum_rows(A, B, A, ans.m, ans.n);
-	
-	return ans;
-}
-
-void GpuMatrix::affine(Matrix* x, Vector* b, Matrix* ans) {
-	
-	GpuMatrix& gx = gpu_cast(x);
-	GpuVector& gb = gpu_cast(b);
-	GpuMatrix& gans = gpu_cast(ans);
-	
-	assert_rows(gb.length, gx.n);
-	assert_rows(gans.m, gx.m);
-	dot(gx, gans);
-	
-	float* A = gans.devPtr;
-	float* B = gb.ptr();
-	
-	gpu_broadcast_sum_rows(A, B, A, gans.m, gans.n);
 }
 
 float GpuMatrix::sum() const {
@@ -269,6 +277,13 @@ float GpuMatrix::sum() const {
 	float ans = gpu_sum(devPtr, length);
 	
 	return ans;
+}
+
+void GpuMatrix::copy(Matrix& dest)const{
+	check_same_dimensions(dest);
+	GpuMatrix& other = gpu_cast(dest);
+	float* dst = other.ptr(); 
+	copy_gpu_to_gpu(devPtr, dst, length);
 }
 
 const CpuMatrix GpuMatrix::cpu() const {
@@ -279,6 +294,10 @@ const CpuMatrix GpuMatrix::cpu() const {
 	copy_gpu_to_cpu(devPtr, dest, length);
 	
 	return ans;
+}
+
+float* GpuMatrix::ptr()const{
+	return devPtr;
 }
 
 void GpuMatrix::print() const {

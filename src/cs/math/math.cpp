@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <cs/core/lang.h>
 
 namespace cs {
 using namespace core;
@@ -25,58 +26,135 @@ size_t VECTOR_PRINT_MAX = 100;
 size_t MATRIX_PRINT_MAX = 100;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-void check_null(void* ptr){
-	if(ptr == nullptr || ptr == NULL){
-		throw Exception("Null pointer exception");
+
+
+bool is_cpu(const Matrix& m){
+	return is_cpu(&m);
+}
+
+bool is_cpu(const Matrix* m) {
+	const CpuMatrix* ans = dynamic_cast<const CpuMatrix*>(m);
+	if (ans) {
+		return true;
 	}
+	return false;
 }
 
 CpuMatrix& cpu_cast(Matrix& m) {
-	return cpu_cast(&m);
+	const Matrix& c = const_cast<const Matrix&>(m);
+	CpuMatrix& ans = const_cast<CpuMatrix&>(cpu_cast(c));
+	return ans;
 }
 
 CpuMatrix& cpu_cast(Matrix* m) {
+	const Matrix* c = const_cast<const Matrix*>(m);
+	CpuMatrix& ans = const_cast<CpuMatrix&>(cpu_cast(c));
+	return ans;
+}
+
+CpuVector& cpu_cast(Vector& v) {
+	const Vector& c = const_cast<const Vector&>(v);
+	CpuVector& ans = const_cast<CpuVector&>(cpu_cast(c));
+	return ans;
+}
+
+CpuVector& cpu_cast(Vector* v) {
+	const Vector* c = const_cast<const Vector*>(v);
+	CpuVector& ans = const_cast<CpuVector&>(cpu_cast(c));
+	return ans;
+}
+
+const CpuMatrix& cpu_cast(const Matrix& m) {
+	return cpu_cast(&m);
+}
+
+const CpuMatrix& cpu_cast(const Matrix* m) {
 	check_null(m);
-	CpuMatrix* ans = dynamic_cast<CpuMatrix*>(m);
+	const CpuMatrix* ans = dynamic_cast<const CpuMatrix*>(m);
 	if (ans) {
 		return *ans;
 	}
 	throw Exception("Class cast exception. The pointer could not be casted into a CpuMatrix.");
 }
 
-CpuVector& cpu_cast(Vector* m) {
-	check_null(m);
-	CpuVector* ans = dynamic_cast<CpuVector*>(m);
+const CpuVector& cpu_cast(const Vector& v) {
+	return cpu_cast(&v);
+}
+
+const CpuVector& cpu_cast(const Vector* v) {
+	check_null(v);
+	const CpuVector* ans = dynamic_cast<const CpuVector*>(v);
 	if (ans) {
 		return *ans;
 	}
 	throw Exception("Class cast exception. The pointer could not be casted into a CpuVector.");
 }
 
+bool is_gpu(Matrix& m) {
+	return is_gpu(&m);
+}
 
-GpuMatrix& gpu_cast(Matrix& m){
+bool is_gpu(Matrix* m) {
+	GpuMatrix* ans = dynamic_cast<GpuMatrix*>(m);
+	if (ans) {
+		return true;
+	}
+	return false;
+}
+
+GpuMatrix& gpu_cast(Matrix& m) {
+	const Matrix& c = const_cast<const Matrix&>(m);
+	GpuMatrix& ans = const_cast<GpuMatrix&>(gpu_cast(c));
+	return ans;
+}
+
+GpuMatrix& gpu_cast(Matrix* m) {
+	const Matrix* c = const_cast<const Matrix*>(m);
+	GpuMatrix& ans = const_cast<GpuMatrix&>(gpu_cast(c));
+	return ans;
+}
+
+GpuVector& gpu_cast(Vector& v) {
+	const Vector& c = const_cast<const Vector&>(v);
+	GpuVector& ans = const_cast<GpuVector&>(gpu_cast(c));
+	return ans;
+}
+
+GpuVector& gpu_cast(Vector* v) {
+	const Vector* c = const_cast<const Vector*>(v);
+	GpuVector& ans = const_cast<GpuVector&>(gpu_cast(c));
+	return ans;
+}
+
+const GpuMatrix& gpu_cast(const Matrix& m) {
 	return gpu_cast(&m);
 }
 
-GpuMatrix& gpu_cast(Matrix* m){
+const GpuMatrix& gpu_cast(const Matrix* m) {
 	check_null(m);
-	GpuMatrix* ans = dynamic_cast<GpuMatrix*>(m);
-	if(ans){
+	const GpuMatrix* ans = dynamic_cast<const GpuMatrix*>(m);
+	if (ans) {
 		return *ans;
 	}
 	throw Exception("Class cast exception. The pointer could not be casted into a GpuMatrix.");
 }
 
-GpuVector& gpu_cast(Vector* m){
+const GpuVector& gpu_cast(const Vector& m) {
+	return gpu_cast(&m);
+}
+
+const GpuVector& gpu_cast(const Vector* m) {
 	check_null(m);
-	GpuVector* ans = dynamic_cast<GpuVector*>(m);
-	if(ans){
+	const GpuVector* ans = dynamic_cast<const GpuVector*>(m);
+	if (ans) {
 		return *ans;
 	}
 	throw Exception("Class cast exception. The pointer could not be casted into a GpuVector.");
 }
 
-
+float sum(const Matrix& m) {
+	return m.sum();
+}
 
 const CpuMatrix randn(size_t m, size_t n) {
 	CpuMatrix ans = CpuMatrix(m, n, false);

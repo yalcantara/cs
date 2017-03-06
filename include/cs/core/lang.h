@@ -18,7 +18,7 @@ using namespace std;
 namespace cs{
 namespace core{
 
-
+void check_null(const void* ptr);
 void copy_float(float* src, float* dest,  size_t length);
 
 void copy_float(float* src, float* dest,  size_t length, size_t start);

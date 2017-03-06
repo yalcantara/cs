@@ -291,7 +291,7 @@ const CpuMatrix CpuMatrix::operator^(float exp) const {
 	return ans;
 }
 
-void CpuMatrix::dot(CpuMatrix& b, CpuMatrix& ans) {
+void CpuMatrix::dot(const CpuMatrix& b, CpuMatrix& ans)const {
 	
 	assert_cols(b.m, n);
 	
@@ -306,6 +306,7 @@ void CpuMatrix::dot(CpuMatrix& b, CpuMatrix& ans) {
 	float* B = b.arr;
 	float* C = ans.arr;
 	
+	ans.clear();
 	//algorithm based on the GNU Scientific Library (GSL)
 	//linear algebra method: gsl_blas_sgemm
 	for (size_t i = 0; i < m; i++) {
@@ -321,10 +322,8 @@ void CpuMatrix::dot(CpuMatrix& b, CpuMatrix& ans) {
 const CpuMatrix CpuMatrix::dot(const CpuMatrix& b) const {
 	
 	CpuMatrix ans = CpuMatrix(m, b.n);
-	CpuMatrix& self = const_cast<CpuMatrix&>(*this);
-	CpuMatrix& cb = const_cast<CpuMatrix&>(b);
 	
-	self.dot(cb, ans);
+	dot(b, ans);
 	
 	return ans;
 }
@@ -355,43 +354,32 @@ const CpuVector CpuMatrix::dot(const CpuVector& b) const {
 
 const CpuMatrix CpuMatrix::affine(const CpuMatrix& x, const CpuVector& b) const {
 	
-	assert_cols(b.length, x.n);
-	const CpuMatrix ans = dot(x);
+	CpuMatrix ans = CpuMatrix(m, x.n, false);
+	affine(x, b, ans);
 	
-	const size_t m = ans.m;
-	const size_t p = ans.n;
+	return ans;
+}
+
+void CpuMatrix::affine(const Matrix& x, const Vector& b, Matrix& ans) const {
+	affine(cpu_cast(x), cpu_cast(b), cpu_cast(ans));
+}
+
+
+void CpuMatrix::affine(const CpuMatrix& x, const CpuVector& b, CpuMatrix& ans) const{
+	
+	size_t p = x.n;
+	assert_rows(b.length, p);
+	dot(x, ans);
 	
 	float* B = b.ptr();
 	float* Y = ans.ptr();
+	
 	for (size_t i = 0; i < m; i++) {
 		for (size_t k = 0; k < p; k++) {
 			Y[i * p + k] += B[k];
 		}
 	}
-	
-	return ans;
 }
-
-void CpuMatrix::affine(Matrix* x, Vector* b, Matrix* ans) {
-	
-	CpuMatrix& cx = cpu_cast(x);
-	CpuVector& cb = cpu_cast(b);
-	CpuMatrix& cans = cpu_cast(ans);
-	
-	assert_rows(cb.length, cx.n);
-	dot(cx, cans);
-	
-	float* A = cans.arr;
-	float* B = cb.ptr();
-	
-	for (size_t i = 0; i < m; i++) {
-		for (size_t j = 0; j < n; j++) {
-			arr[i * n + j] += B[j];
-		}
-	}
-}
-
-
 
 float CpuMatrix::sum() const {
 	
@@ -434,6 +422,15 @@ float CpuMatrix::min() const {
 
 float CpuMatrix::avg() const {
 	return sum() / length;
+}
+
+void CpuMatrix::copy(Matrix& dest)const{
+	copy(cpu_cast(dest));
+}
+
+void CpuMatrix::copy(CpuMatrix& dest)const{
+	check_same_dimensions(dest);
+	copy_float(arr, dest.arr, length);
 }
 
 float* CpuMatrix::ptr() const {

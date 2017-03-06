@@ -206,4 +206,10 @@ src/cs.o : ../src/cs.cu \
     /home/yaison/cuda-workspace/cs/include/cs/math/math.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Affine.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Layer.h \
-    /usr/include/x86_64-linux-gnu/sys/time.h
+    /home/yaison/cuda-workspace/cs/include/cs/nn/errors.h \
+    /usr/include/x86_64-linux-gnu/sys/time.h \
+    /home/yaison/cuda-workspace/cs/include/cs/nn/gpu_layers.cuh \
+    /usr/local/cuda-7.5/bin/..//include/cublas_v2.h \
+    /usr/local/cuda-7.5/bin/..//include/cublas_api.h \
+    /usr/local/cuda-7.5/bin/..//include/cuComplex.h \
+    /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h
