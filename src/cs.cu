@@ -115,7 +115,6 @@ void test2() {
 			CpuMatrix dg = cpu_cast(h) - y;
 			
 			f.backward(dg);
-			
 			f.update(alpha);
 			
 		}

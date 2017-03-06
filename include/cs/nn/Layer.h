@@ -19,8 +19,8 @@ namespace nn {
 class Layer {
 protected:
 	bool gpu = false;
-	size_t in;
-	size_t out;
+	size_t in = 0;
+	size_t out = 0;
 
 public:
 	Layer();
