@@ -212,4 +212,5 @@ src/cs.o : ../src/cs.cu \
     /usr/local/cuda-7.5/bin/..//include/cublas_v2.h \
     /usr/local/cuda-7.5/bin/..//include/cublas_api.h \
     /usr/local/cuda-7.5/bin/..//include/cuComplex.h \
-    /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h
+    /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h \
+    /home/yaison/cuda-workspace/cs/include/cs/nn/Sigmoid.h

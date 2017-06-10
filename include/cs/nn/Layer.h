@@ -9,8 +9,7 @@
 #define CS_NN_LAYER_H_
 
 #include <cs/math/Matrix.h>
-#include <cs/math/GpuMatrix.h>
-#include <cs/math/CpuMatrix.h>
+
 
 namespace cs {
 using namespace math;
@@ -21,6 +20,12 @@ protected:
 	bool gpu = false;
 	size_t in = 0;
 	size_t out = 0;
+
+	Matrix* fx = nullptr;
+	Matrix* dx = nullptr;
+
+	void init_fx(size_t m);
+	void init_dx(size_t m, size_t n);
 
 public:
 	Layer();
@@ -33,11 +38,13 @@ public:
 	size_t in_dim() const;
 	size_t out_dim() const;
 
+	Matrix& get_dx() const;
+
 	virtual Matrix& foward(const Matrix& x)=0;
 	virtual Matrix& backward(const Matrix& dg)=0;
 	virtual void update(float alpha)=0;
 
-	virtual void print()const=0;
+	virtual void print() const=0;
 	virtual ~Layer();
 };
 

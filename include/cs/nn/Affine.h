@@ -8,9 +8,10 @@
 #ifndef CS_NN_AFFINE_H_
 #define CS_NN_AFFINE_H_
 
-#include <cs/nn/Layer.h>
-#include <cs/math/Matrix.h>
+#include <cs/math/CpuMatrix.h>
+#include <cs/math/GpuMatrix.h>
 #include <cs/math/Vector.h>
+#include <cs/nn/Layer.h>
 
 namespace cs {
 using namespace math;
@@ -28,8 +29,7 @@ private:
 	Matrix* dw = nullptr;
 	Vector* db = nullptr;
 
-	void init_fx(size_t m);
-	void init_dx(size_t m, size_t n);
+	
 	Matrix& gpu_backward(const GpuMatrix& dg);
 	Matrix& cpu_backward(const CpuMatrix& dg);
 	
@@ -46,7 +46,7 @@ public:
 	void set_weights(const Matrix& weights);
 	void set_bias(const Vector& bias);
 	
-	Matrix& get_dx()const;
+	
 	
 	Matrix& foward(const Matrix& x);
 	Matrix& backward(const Matrix& dg);

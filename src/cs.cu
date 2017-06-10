@@ -24,6 +24,7 @@
 #include <cs/nn/gpu_layers.cuh>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <cs/nn/Sigmoid.h>
 
 using namespace std;
 using namespace cs::core;

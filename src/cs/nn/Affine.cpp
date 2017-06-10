@@ -5,14 +5,13 @@
  *      Author: Yaison Alcantara
  */
 
-#include <cs/math/CpuMatrix.h>
+#include <cs/core/lang.h>
 #include <cs/math/CpuVector.h>
-#include <cs/math/GpuMatrix.h>
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
 #include <cs/nn/Affine.h>
-#include <cs/core/lang.h>
 #include <stddef.h>
+
 #include <cs/nn/gpu_layers.cuh>
 
 namespace cs {
@@ -31,14 +30,6 @@ void Affine::release() {
 	
 	if (b) {
 		delete b;
-	}
-	
-	if (fx) {
-		delete fx;
-	}
-	
-	if (dx) {
-		delete dx;
 	}
 	
 	if (db) {
@@ -73,53 +64,7 @@ void Affine::init() {
 	}
 }
 
-void Affine::init_fx(size_t m) {
-	//If we already have created a fx then, we have to check if the dimensions 
-	//are right for the incoming x. If it passes that test, then no need to create 
-	//another one. If the dimensions does not match, we have to delete the 
-	//previous and create a new one.
-	if (fx) {
-		if (fx->m == m && fx->n == out) {
-			//it's already created and the dimensions are fine
-			return;
-		}
-		
-		delete fx;
-		if (gpu) {
-			fx = new GpuMatrix(m, out);
-		} else {
-			fx = new CpuMatrix(m, out);
-		}
-	} else {
-		if (gpu) {
-			fx = new GpuMatrix(m, out);
-		} else {
-			fx = new CpuMatrix(m, out);
-		}
-	}
-}
 
-void Affine::init_dx(size_t m, size_t n) {
-	//If we already have created a dx then, we have to check if the dimensions 
-	//are right for the incoming x. If it passes that test, then no need to create 
-	//another one. If the dimensions does not match, we have to delete the 
-	//previous and create a new one.
-	if (dx) {
-		if (dx->m == m && dx->n == n) {
-			//it's already created and the dimensions are fine
-			return;
-		}
-		
-		delete dx;
-	}
-	
-	if (gpu) {
-		dx = new GpuMatrix(m, n);
-	} else {
-		dx = new CpuMatrix(m, n);
-	}
-	
-}
 
 void Affine::set_weights(const Matrix& weights) {
 	weights.copy(*w);
@@ -130,10 +75,7 @@ void Affine::set_bias(const Vector& bias) {
 }
 
 
-Matrix& Affine::get_dx()const{
-	check_null(dx);
-	return *dx;
-}
+
 
 Matrix& Affine::foward(const Matrix& x) {
 	init_fx(x.m);
