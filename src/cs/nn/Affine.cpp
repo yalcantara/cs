@@ -82,6 +82,7 @@ Matrix& Affine::foward(const Matrix& x) {
 	this->x = const_cast<Matrix*>(&x);
 	
 	x.affine(*w, *b, *fx);
+	
 	return *fx;
 }
 
@@ -89,13 +90,15 @@ Matrix& Affine::backward(const Matrix& dg) {
 	init_dx(x->m, x->n);
 	
 	if (gpu) {
-		return gpu_backward(gpu_cast(dg));
+		gpu_backward(gpu_cast(dg));
+	}else{
+		cpu_backward(cpu_cast(dg));
 	}
 	
-	return cpu_backward(cpu_cast(dg));
+	return *dx;
 }
 
-Matrix& Affine::gpu_backward(const GpuMatrix& dg) {
+void Affine::gpu_backward(const GpuMatrix& dg) {
 	
 	GpuMatrix& x = gpu_cast(this->x);
 	GpuMatrix& w = gpu_cast(this->w);
@@ -105,10 +108,9 @@ Matrix& Affine::gpu_backward(const GpuMatrix& dg) {
 	GpuVector& db = gpu_cast(this->db);
 	
 	affine_dx(x, w, dg, dx, dw, db);
-	return dx;
 }
 
-Matrix& Affine::cpu_backward(const CpuMatrix& dg) {
+void Affine::cpu_backward(const CpuMatrix& dg) {
 	
 	CpuMatrix& x = cpu_cast(this->x);
 	CpuMatrix& w = cpu_cast(this->w);
@@ -148,8 +150,6 @@ Matrix& Affine::cpu_backward(const CpuMatrix& dg) {
 			DB[k] += fdg;
 		}
 	}
-	
-	return dx;
 }
 
 void Affine::update(float alpha) {
@@ -212,6 +212,9 @@ void Affine::print() const {
 	println();
 	println("Affine");
 	println("------------------------------------------------------------------");
+	println("In : " + to_string(in));
+	println("Out: " + to_string(out));
+	println();
 	println("Weights:");
 	w->print();
 	
@@ -225,7 +228,6 @@ void Affine::print() const {
 	db->print();
 	println("------------------------------------------------------------------");
 	println();
-	
 }
 
 Affine::~Affine() {

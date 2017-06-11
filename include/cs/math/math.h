@@ -55,6 +55,7 @@ const CpuMatrix operator*(float scalar, const CpuMatrix& a);
 const GpuVector operator*(float scalar, const GpuVector& a);
 const GpuMatrix operator*(float scalar, const GpuMatrix& a);
 
+
 } // namespace math
 } // namespace cs
 

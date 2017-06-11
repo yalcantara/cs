@@ -31,7 +31,9 @@ void affine_dx(const GpuMatrix& x, const GpuMatrix& w, const GpuMatrix& dg, GpuM
 	float* DB = db.ptr();
 	
 	gpu_dot(X, true, DG, DW, n, m, p);
+
 	gpu_dot(DG, W, true, DX, m, p, n);
+
 	gpu_sum_rows(DG, DB, m, p);
 }
 
@@ -52,6 +54,30 @@ void update_params(const GpuVector& b, const GpuVector& db, float scalar) {
 	
 	gpu_add_inplace(B, DB, scalar, length);
 }
+
+
+void sigmoid_fx(const GpuMatrix& x, const GpuMatrix& fx){
+	
+	size_t m = x.m;
+	size_t n = x.n;
+	
+	float* X = x.ptr();
+	float* FX = fx.ptr();
+	
+	gpu_sigmoid_fx(X, FX, m, n);
+}
+
+void sigmoid_dx(const GpuMatrix& x, const GpuMatrix& dx){
+	
+	size_t m = x.m;
+	size_t n = x.n;
+	
+	float* X = x.ptr();
+	float* DX = dx.ptr();
+	
+	gpu_sigmoid_dx(X, DX, m, n);
+}
+
 
 } // namespace nn
 } // namespace cs

@@ -57,10 +57,10 @@ void gpu_sum_rows(float* a, float* dest, size_t m, size_t n);
 
 
 //activation
-void gpu_sigmoid_fx(float* x, float* fx, size_t l);
-void gpu_sigmoid_dx(float* fx, float* dx, size_t l);
+void gpu_sigmoid_fx(float* x, float* fx, size_t m, size_t n);
+void gpu_sigmoid_dx(float* x, float* dx, size_t m, size_t n);
 void gpu_relu_fx(float* x, float* fx, size_t l);
-void gpu_relu_dx(float* fx, float* dx, size_t l);
+void gpu_relu_dx(float* x, float* dx, size_t l);
 void gpu_2dconv_fx(float* x, float* w, float* fx, size_t m, size_t n, size_t d);
 void gpu_2dconv_dx(float* x, float* w, float* dx, float* dw, size_t m, size_t n, size_t d);
 

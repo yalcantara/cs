@@ -24,6 +24,9 @@ void cuda_vector_pow(float* a, float exponent, float* dest, size_t l);
 void cuda_broadcast_sum_rows(float* a, float* b, float* dest, size_t m, size_t n);
 void cuda_sum_rows(float* a, float* dest, size_t m, size_t n);
 
+void cuda_sigmoid_fx(float* x, float* fx, size_t m, size_t n);
+void cuda_sigmoid_dx(float* x, float* fx, size_t m, size_t n);
+
 } // namespace gpu
 } // namespace cs
 #endif // CS_GPU_CUDA_UTILS_CUH_

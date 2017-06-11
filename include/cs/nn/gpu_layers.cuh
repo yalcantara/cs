@@ -14,9 +14,14 @@ namespace cs {
 using namespace math;
 namespace nn {
 
+
+
 void affine_dx(const GpuMatrix& x, const GpuMatrix& w, const GpuMatrix& dg, GpuMatrix& dx, GpuMatrix& dw, GpuVector& db);
 void update_params(const GpuMatrix& w, const GpuMatrix& dw, float scalar);
 void update_params(const GpuVector& b, const GpuVector& db, float scalar);
+
+void sigmoid_fx(const GpuMatrix& x, const GpuMatrix& fx);
+void sigmoid_dx(const GpuMatrix& x, const GpuMatrix& dx);
 
 
 } // namespace nn

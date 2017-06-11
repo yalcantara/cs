@@ -227,5 +227,6 @@ const GpuMatrix operator*(float scalar, const GpuMatrix& a) {
 	return a * scalar;
 }
 
+
 } // namespace math
 } // namespace cs

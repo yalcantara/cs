@@ -11,7 +11,7 @@ namespace gpu {
 unsigned int BLOCK_SIZE_2D = 16;
 unsigned int BLOCK_SIZE_1D = 256;
 
-__global__ void cuda_kernel_matrix_mult(float* a, float* b, float* dest, unsigned int m, unsigned int n) {
+__global__ void kernel_matrix_mult(float* a, float* b, float* dest, unsigned int m, unsigned int n) {
 	
 	unsigned int i = blockIdx.y * blockDim.y + threadIdx.y;
 	unsigned int j = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,7 +21,7 @@ __global__ void cuda_kernel_matrix_mult(float* a, float* b, float* dest, unsigne
 	}
 }
 
-__global__ void cuda_kernel_matrix_sum_rows(float* a, float* dest, unsigned int m, unsigned int n) {
+__global__ void kernel_matrix_sum_rows(float* a, float* dest, unsigned int m, unsigned int n) {
 	
 	unsigned int j = blockIdx.x * blockDim.x + threadIdx.x;
 	if (j < n) {
@@ -33,7 +33,7 @@ __global__ void cuda_kernel_matrix_sum_rows(float* a, float* dest, unsigned int 
 	}
 }
 
-__global__ void cuda_kernel_vector_mult(float* a, float* b, float* dest, unsigned int l) {
+__global__ void kernel_vector_mult(float* a, float* b, float* dest, unsigned int l) {
 	
 	unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (idx < l) {
@@ -67,6 +67,36 @@ __global__ void kernel_broadcast_sum_rows(float* a, float* b, float* dest, unsig
 	}
 }
 
+
+__device__ float kernel_sigmoid(float z){
+	return 1.0f / (1.0f + expf(-z));
+}
+
+__global__ void kernel_sigmoid_fx(float* x, float* dest, unsigned int m, unsigned int n){
+	
+	unsigned int i = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int j = blockIdx.x * blockDim.x + threadIdx.x;
+	
+	if(i < m && j < n){
+		unsigned int absIdx = i * n + j;
+		dest[absIdx] = kernel_sigmoid(x[absIdx]); 
+	}
+}
+
+__global__ void kernel_sigmoid_dx(float* x, float* dest, unsigned int m, unsigned int n){
+	
+	unsigned int i = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int j = blockIdx.x * blockDim.x + threadIdx.x;
+	
+	if(i < m && j < n){
+		unsigned absIdx = i * n + j;
+		float z = x[absIdx];
+		dest[absIdx] = kernel_sigmoid(z) * (1 - kernel_sigmoid(z));
+	}
+}
+
+
+
 void cuda_matrix_mult(float* a, float* b, float* dest, size_t m, size_t n) {
 	
 	dim3 block(BLOCK_SIZE_2D, BLOCK_SIZE_2D);
@@ -76,7 +106,7 @@ void cuda_matrix_mult(float* a, float* b, float* dest, size_t m, size_t n) {
 	
 	dim3 grid(blocksX, blocksY);
 	
-	cuda_kernel_matrix_mult<<<grid, block>>>(a, b, dest, m, n);
+	kernel_matrix_mult<<<grid, block>>>(a, b, dest, m, n);
 }
 
 void cuda_vector_mult(float* a, float* b, float* dest, size_t length) {
@@ -87,7 +117,7 @@ void cuda_vector_mult(float* a, float* b, float* dest, size_t length) {
 	
 	dim3 grid(blocksX);
 	
-	cuda_kernel_vector_mult<<<grid, block>>>(a, b, dest, length);
+	kernel_vector_mult<<<grid, block>>>(a, b, dest, length);
 }
 
 void cuda_vector_div(float* a, float* b, float* dest, size_t length) {
@@ -132,9 +162,31 @@ void cuda_sum_rows(float* a, float* dest, size_t m, size_t n) {
 	
 	dim3 grid(blocksX);
 	
-	cuda_kernel_matrix_sum_rows<<<grid, block>>>(a, dest, m, n);
+	kernel_matrix_sum_rows<<<grid, block>>>(a, dest, m, n);
 }
 
+
+void cuda_sigmoid_fx(float* x, float* fx, size_t m, size_t n){
+	dim3 block(BLOCK_SIZE_2D, BLOCK_SIZE_2D);
+		
+	unsigned int blocksX = (unsigned int) ceil(n / (double) BLOCK_SIZE_2D);
+	unsigned int blocksY = (unsigned int) ceil(m / (double) BLOCK_SIZE_2D);
+	
+	dim3 grid(blocksX, blocksY);
+	
+	kernel_sigmoid_fx<<<grid, block>>>(x, fx, m, n);
 }
- // namespace gpu
+
+void cuda_sigmoid_dx(float* x, float* fx, size_t m, size_t n){
+	dim3 block(BLOCK_SIZE_2D, BLOCK_SIZE_2D);
+		
+	unsigned int blocksX = (unsigned int) ceil(n / (double) BLOCK_SIZE_2D);
+	unsigned int blocksY = (unsigned int) ceil(m / (double) BLOCK_SIZE_2D);
+	
+	dim3 grid(blocksX, blocksY);
+	
+	kernel_sigmoid_dx<<<grid, block>>>(x, fx, m, n);
+}
+
+}// namespace gpu
 }// namespace cs

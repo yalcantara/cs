@@ -20,18 +20,17 @@ namespace nn {
 class Affine: public Layer {
 	
 private:
-	Matrix* x = nullptr;
+	Matrix* x = nullptr; //not owned
+	
 	Matrix* w = nullptr;
 	Vector* b = nullptr;
 
-	Matrix* fx = nullptr;
-	Matrix* dx = nullptr;
 	Matrix* dw = nullptr;
 	Vector* db = nullptr;
 
 	
-	Matrix& gpu_backward(const GpuMatrix& dg);
-	Matrix& cpu_backward(const CpuMatrix& dg);
+	void gpu_backward(const GpuMatrix& dg);
+	void cpu_backward(const CpuMatrix& dg);
 	
 	void gpu_update(float alpha);
 	void cpu_update(float alpha);
