@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
-#include "cs/core/lang.h"
+#include <cs/core/lang.h>
 
 
 namespace cs{
@@ -49,9 +49,10 @@ void gpu_pow_inplace(float* src, float exp, size_t l);
 float gpu_sum(float* a, size_t l);
 
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n, size_t p);
-void gpu_dot(float* a, bool transA, float* b, float* c, size_t m, size_t n, size_t p);
-void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t p);
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n);
+void gpu_dot(float* a, bool transA, float* b, float* c, size_t m, size_t n, size_t p);
+void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t o, size_t p);
+
 void gpu_broadcast_sum_rows(float* a, float* b, float* c, size_t m, size_t n);
 void gpu_sum_rows(float* a, float* dest, size_t m, size_t n);
 
