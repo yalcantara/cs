@@ -108,6 +108,7 @@ void Affine::gpu_backward(const GpuMatrix& dg) {
 	GpuVector& db = gpu_cast(this->db);
 	
 	affine_dx(x, w, dg, dx, dw, db);
+
 }
 
 void Affine::cpu_backward(const CpuMatrix& dg) {

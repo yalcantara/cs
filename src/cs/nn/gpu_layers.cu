@@ -21,6 +21,7 @@ void affine_dx(const GpuMatrix& x, const GpuMatrix& w, const GpuMatrix& dg, GpuM
 	
 	size_t m = x.m;
 	size_t n = x.n;
+	size_t o = w.m;
 	size_t p = w.n;
 	
 	float* X = x.ptr();
@@ -30,9 +31,8 @@ void affine_dx(const GpuMatrix& x, const GpuMatrix& w, const GpuMatrix& dg, GpuM
 	float* DW = dw.ptr();
 	float* DB = db.ptr();
 	
-	gpu_dot(X, true, DG, DW, n, m, p);
-
-	gpu_dot(DG, W, true, DX, m, p, n);
+	gpu_dot(X, true, DG, DW, m, n, p);
+	gpu_dot(DG, W, true, DX, m, p, o, p);
 
 	gpu_sum_rows(DG, DB, m, p);
 }

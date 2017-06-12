@@ -209,29 +209,28 @@ void gpu_dot(float* a, bool transA, float* b, float* c, size_t m, size_t n, size
 	//Since cublas assumes column major, and our structure are row major, we need to change the order.
 	// The logic is that (AB)^T = B^T x A^T.
 	if (transA) {
-		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_T, p, m, n, &alpha, b, p, a, m, &beta, c, p));
+		//In this case the output will be (p x n) ^T = n x p
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_T, p, n, m, &alpha, b, p, a, n, &beta, c, p));
+
 	} else {
 		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, p, m, n, &alpha, b, p, a, n, &beta, c, p));
 	}
 }
 
-
-void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t p) {
+void gpu_dot(float* a, float* b, bool transB, float* c, size_t m, size_t n, size_t o, size_t p) {
 	init();
 	const float alpha = 1.0;
 	const float beta = 0.0;
 	
 	//Since cublas assumes column major, and our structure are row major, we need to change the order.
 	// The logic is that (AB)^T = B^T x A^T.
-	
 	if (transB) {
-		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, p, m, n, &alpha, b, n, a, p, &beta, c, p));
+		//For this particular case we would need the o parameter since the output will be (o x m)^T = m x o
+		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, o, m, n, &alpha, b, p, a, n, &beta, c, o));
 	} else {
 		check_cublas(cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, p, m, n, &alpha, b, p, a, n, &beta, c, p));
 	}
 }
-
-
 
 void gpu_dot(float* a, float* b, float* c, size_t m, size_t n) {
 	init();
@@ -246,23 +245,21 @@ void gpu_broadcast_sum_rows(float* a, float* b, float* c, size_t m, size_t n) {
 	cuda_broadcast_sum_rows(a, b, c, m, n);
 }
 
-void gpu_sum_rows(float* a, float* dest, size_t m, size_t n){
+void gpu_sum_rows(float* a, float* dest, size_t m, size_t n) {
 	cuda_sum_rows(a, dest, m, n);
 }
 
-
-
 //Activations
 //=============================================================================
-void gpu_sigmoid_fx(float* x, float* fx, size_t m, size_t n){
+void gpu_sigmoid_fx(float* x, float* fx, size_t m, size_t n) {
 	init();
 	
 	cuda_sigmoid_fx(x, fx, m, n);
 }
 
-void gpu_sigmoid_dx(float* x, float* dx, size_t m, size_t n){
+void gpu_sigmoid_dx(float* x, float* dx, size_t m, size_t n) {
 	init();
-		
+	
 	cuda_sigmoid_fx(x, dx, m, n);
 }
 

@@ -14,6 +14,7 @@
 #include <cs/math/GpuMatrix.h>
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
+#include <cs/gpu/gpu.h>
 #include <cs/nn/Affine.h>
 #include <cs/nn/errors.h>
 #include <stddef.h>
@@ -30,6 +31,7 @@ using namespace std;
 using namespace cs::core;
 using namespace cs::math;
 using namespace cs::nn;
+using namespace cs::gpu;
 
 void performance() {
 	
@@ -101,18 +103,15 @@ void test2() {
 		float alpha = 0.1;
 		
 		//f.print();
-		int iter = 3;
+		int iter = 100;
 		for (int i = 0; i <= iter; i++) {
-			println("====================================");
 			//f.print();
 			Matrix& h = f.foward(x);
 			if (iter < 10 || i % (iter / 10) == 0) {
 				j = min_square_error(h, y);
-				println("j: " + to_string(j));
+				printf("iter: %6d,  j: %12.8f\n", i, j);
 			}
 			
-			h.print();
-			f.print();
 			CpuMatrix dg = cpu_cast(h) - y;
 			
 			f.backward(dg);
@@ -133,7 +132,7 @@ void gpu_test() {
 		
 		Affine f = Affine();
 		f.use_gpu(true);
-		GpuMatrix x = { { 0 }, { 1 } };
+		GpuMatrix x = { { 0, 0 }, { 0, 1 } };
 		
 		GpuMatrix y = { { 1 }, { 0 } };
 		
@@ -145,35 +144,44 @@ void gpu_test() {
 		
 		f.set_dim(x.n, y.n);
 		f.init();
-		GpuMatrix w = { { 0 } };
+		println("Affine initialized");
+		GpuMatrix w = { { -1 }, { 5 } };
+		
 		GpuVector b = { 2 };
 		f.set_weights(w);
+		println("Weights set");
 		f.set_bias(b);
-		
+		println("Bias set");
 		float j;
 		float alpha = 0.1;
 		
-		//f.print();
-		int iter = 100;
+		f.print();
+		println("About to train");
+		int iter = 1000;
 		for (int i = 0; i <= iter; i++) {
 			//println("===================================");
 			//f.print();
+			
 			Matrix& h = f.foward(x);
 			
 			if (iter <= 10 || i % (iter / 10) == 0) {
 				j = min_square_error(h, y);
 				//println("=======================================");
-				println("j: " + to_string(j));
+				printf("iter: %6d  J: %12.8f", i, j);
+				println();
 			}
 			
 			GpuMatrix dg = gpu_cast(h) - y;
 			
 			f.backward(dg);
+			
 			f.update(alpha);
 		}
 		
+		println();
 		Matrix& h = f.foward(x);
 		
+		f.print();
 		h.print();
 		println("ended");
 	} catch (Exception& ex) {
@@ -182,53 +190,281 @@ void gpu_test() {
 	}
 }
 
-cublasHandle_t cublas_handle = nullptr;
-
-const char* _cuda_get_error_enum(cublasStatus_t error) {
-	switch (error) {
-	case CUBLAS_STATUS_SUCCESS:
-		return "CUBLAS_STATUS_SUCCESS";
-		
-	case CUBLAS_STATUS_NOT_INITIALIZED:
-		return "CUBLAS_STATUS_NOT_INITIALIZED";
-		
-	case CUBLAS_STATUS_ALLOC_FAILED:
-		return "CUBLAS_STATUS_ALLOC_FAILED";
-		
-	case CUBLAS_STATUS_INVALID_VALUE:
-		return "CUBLAS_STATUS_INVALID_VALUE";
-		
-	case CUBLAS_STATUS_ARCH_MISMATCH:
-		return "CUBLAS_STATUS_ARCH_MISMATCH";
-		
-	case CUBLAS_STATUS_MAPPING_ERROR:
-		return "CUBLAS_STATUS_MAPPING_ERROR";
-		
-	case CUBLAS_STATUS_EXECUTION_FAILED:
-		return "CUBLAS_STATUS_EXECUTION_FAILED";
-		
-	case CUBLAS_STATUS_INTERNAL_ERROR:
-		return "CUBLAS_STATUS_INTERNAL_ERROR";
-	}
+void trans_test1() {
 	
-	return "<unknown>";
+	println("===================================================");
+	println("A^T x B  case 1");
+	//continue here: test sigmoid
+	GpuMatrix a = { { 1, 2 }, { 3, 4 } };
+	GpuMatrix b = { { 1, 0, 0 }, { 3, 1, 1 } };
+	
+	GpuMatrix c = GpuMatrix(a.n, b.n);
+	
+	size_t m = a.m;
+	size_t n = a.n;
+	size_t p = b.n;
+	float* A = a.ptr();
+	float* B = b.ptr();
+	float* C = c.ptr();
+	
+	gpu_dot(A, true, B, C, m, n, p);
+	
+	println("The ans should be:");
+	GpuMatrix ans = { { 10, 3, 3 }, { 14, 4, 4 } };
+	ans.print();
+	
+	println("Got:");
+	c.print();
 }
 
-void check_cublas(cublasStatus_t status) {
-	if (status == CUBLAS_STATUS_SUCCESS) {
-		return;
-	}
+void trans_test2() {
+	println("===================================================");
+	println("A^T x B  case 2");
+	//continue here: test sigmoid
+	GpuMatrix a = { { 1, 2, 0 }, { 1, 0, 1 } };
+	GpuMatrix b = { { 1, 2, 3, 0 }, { 2, 0, 3, 5 } };
 	
-	fprintf(stderr, "CUBLAS error %d\nMessage: %s.\n", status, _cuda_get_error_enum(status));
-	fflush(stderr);
-	throw Exception("Cuda error");
+	GpuMatrix c = GpuMatrix(a.n, b.n);
+	
+	size_t m = a.m;
+	size_t n = a.n;
+	size_t p = b.n;
+	float* A = a.ptr();
+	float* B = b.ptr();
+	float* C = c.ptr();
+	
+	gpu_dot(A, true, B, C, m, n, p);
+	
+	println("The ans should be:");
+	GpuMatrix ans = { { 3, 2, 6, 5 }, { 2, 4, 6, 0 }, { 2, 0, 3, 5 } };
+	ans.print();
+	
+	println("Got:");
+	c.print();
+}
+
+void trans_test3() {
+	println("===================================================");
+	println("A x B^T  case 1");
+	//continue here: test sigmoid
+	GpuMatrix a = { { 1, 2 }, { 3, 4 } };
+	GpuMatrix b = { { 1, 0 }, { 0, 3 }, { 1, 1 } };
+	
+	GpuMatrix c = GpuMatrix(a.m, b.m);
+	
+	size_t m = a.m;
+	size_t n = a.n;
+	size_t o = b.m;
+	size_t p = b.n;
+	float* A = a.ptr();
+	float* B = b.ptr();
+	float* C = c.ptr();
+	
+	b.print();
+	gpu_dot(A, B, true, C, m, n, o, p);
+	
+	println("The ans should be:");
+	GpuMatrix ans = { { 1, 6, 3 }, { 3, 12, 7 } };
+	ans.print();
+	
+	println("Got:");
+	c.print();
+}
+
+void trans_test4() {
+	println("===================================================");
+	println("A x B^T  case 2");
+	//continue here: test sigmoid
+	GpuMatrix a = { { 1, 2 }, { 1, 0 }, { 4, 5 } };
+	GpuMatrix b = { { 1, 2 }, { 3, 0 } };
+	
+	GpuMatrix c = GpuMatrix(a.m, b.m);
+	
+	size_t m = a.m;
+	size_t n = a.n;
+	size_t o = b.m;
+	size_t p = b.n;
+	float* A = a.ptr();
+	float* B = b.ptr();
+	float* C = c.ptr();
+	
+	gpu_dot(A, B, true, C, m, n, o, p);
+	
+	println("The ans should be:");
+	GpuMatrix ans = { { 5, 3 }, { 1, 3 }, { 14, 12 } };
+	ans.print();
+	
+	println("Got:");
+	c.print();
+}
+
+void sigmoid_test() {
+	
+	GpuMatrix a = { { 1, -1 }, { -16, 16 }, { -100, 100 }, { 0, 0 } };
+	
+	GpuMatrix b = GpuMatrix(a.m, a.n);
+	
+	a.print();
+	Sigmoid s = Sigmoid();
+	s.use_gpu(true);
+	s.set_dim(a.n);
+	
+	Matrix& ans = s.foward(a);
+	
+	ans.print();
+}
+
+void sigmoid_test2() {
+	try {
+		srand(time(NULL));
+		
+		GpuMatrix x = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+		GpuMatrix y = { { 1 }, { 0 }, { 0 }, { 1 } };
+		
+		println("X:");
+		x.print();
+		
+		println("Y");
+		y.print();
+		
+		Affine f = Affine();
+		f.use_gpu(true);
+		f.set_dim(x.n, y.n);
+		f.init();
+		
+		Sigmoid s = Sigmoid();
+		s.use_gpu(true);
+		s.set_dim(f.out_dim());
+		s.init();
+		
+		println("Bias set");
+		float j;
+		float alpha = 0.1;
+		
+		f.print();
+		println("About to train");
+		int iter = 10000;
+		for (int i = 0; i <= iter; i++) {
+			//println("===================================");
+			//f.print();
+			
+			Matrix& h1 = f.foward(x);
+			Matrix& h2 = s.foward(h1);
+			
+			if (iter <= 10 || i % (iter / 10) == 0) {
+				j = min_square_error(h2, y);
+				//println("=======================================");
+				printf("iter: %6d  J: %12.8f", i, j);
+				println();
+			}
+			
+			GpuMatrix dg = gpu_cast(h2) - y;
+			Matrix& b = s.backward(dg);
+			f.backward(b);
+			
+			f.update(alpha);
+		}
+		
+		println();
+		Matrix& h1 = f.foward(x);
+		Matrix& h2 = s.foward(h1);
+		println("Ans:");
+		h2.print();
+		println("ended");
+	} catch (Exception& ex) {
+		println("Exception thrown");
+		println(ex.what());
+	}
+}
+
+void sigmoid_test3() {
+	try {
+		srand(time(NULL));
+		
+		CpuMatrix x = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+		CpuMatrix y = { { 1 }, { 0 }, { 0 }, { 1 } };
+		
+		println("X:");
+		x.print();
+		
+		println("Y");
+		y.print();
+		
+		bool gpu = false;
+		
+		Affine f1 = Affine();
+		f1.use_gpu(gpu);
+		f1.set_dim(x.n, x.n);
+		f1.init();
+		
+		Sigmoid s1 = Sigmoid();
+		s1.use_gpu(gpu);
+		s1.set_dim(f1.out_dim());
+		s1.init();
+		
+		Affine f2 = Affine();
+		f2.use_gpu(gpu);
+		f2.set_dim(x.n, y.n);
+		f2.init();
+		
+		Sigmoid s2 = Sigmoid();
+		s2.use_gpu(gpu);
+		s2.set_dim(f2.out_dim());
+		s2.init();
+		
+		println("Bias set");
+		float j;
+		float alpha = 0.1;
+		
+		println("About to train");
+		int iter = 100000;
+		for (int i = 0; i <= iter; i++) {
+			//println("===================================");
+			//f.print();
+			
+			Matrix& h1 = f1.foward(x);
+			Matrix& h2 = s1.foward(h1);
+			Matrix& h3 = f2.foward(h2);
+			Matrix& h4 = s2.foward(h3);
+			
+			if (iter <= 10 || i % (iter / 10) == 0) {
+				j = min_square_error(h4, y);
+				//println("=======================================");
+				printf("iter: %8d  J: %12.8f", i, j);
+				println();
+			}
+			
+			CpuMatrix dg = cpu_cast(h4) - y;
+			Matrix& b1 = s2.backward(dg);
+			Matrix& b2 = f2.backward(b1);
+			Matrix& b3 = s1.backward(b2);
+			f1.backward(b3);
+			
+			f2.update(alpha);
+			f1.update(alpha);
+		}
+		
+		println();
+		
+		Matrix& h1 = f1.foward(x);
+		Matrix& h2 = s1.foward(h1);
+		Matrix& h3 = f2.foward(h2);
+		Matrix& h4 = s2.foward(h3);
+		
+		println("Ans:");
+		h4.print();
+		println("ended");
+	} catch (Exception& ex) {
+		println("Exception thrown");
+		println(ex.what());
+	}
 }
 
 int main(void) {
-	gpu_test();
-	//test2();
+	sigmoid_test3();
 	
-
+	//gpu_test();
+	//test2();
 	
 	return 0;
 }
