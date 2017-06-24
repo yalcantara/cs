@@ -126,4 +126,53 @@ src/cs/core/lang.o : ../src/cs/core/lang.cpp \
     /usr/include/c++/4.8/bits/basic_ios.tcc \
     /usr/include/c++/4.8/bits/ostream.tcc \
     /usr/include/c++/4.8/istream \
-    /usr/include/c++/4.8/bits/istream.tcc
+    /usr/include/c++/4.8/bits/istream.tcc \
+    /usr/include/c++/4.8/vector \
+    /usr/include/c++/4.8/bits/stl_construct.h \
+    /usr/include/c++/4.8/ext/alloc_traits.h \
+    /usr/include/c++/4.8/bits/alloc_traits.h \
+    /usr/include/c++/4.8/bits/ptr_traits.h \
+    /usr/include/c++/4.8/bits/stl_uninitialized.h \
+    /usr/include/c++/4.8/bits/stl_vector.h \
+    /usr/include/c++/4.8/bits/stl_bvector.h \
+    /usr/include/c++/4.8/bits/vector.tcc \
+    /usr/include/c++/4.8/algorithm \
+    /usr/include/c++/4.8/utility \
+    /usr/include/c++/4.8/bits/stl_relops.h \
+    /usr/include/c++/4.8/bits/stl_algo.h \
+    /usr/include/c++/4.8/bits/algorithmfwd.h \
+    /usr/include/c++/4.8/bits/stl_heap.h \
+    /usr/include/c++/4.8/bits/stl_tempbuf.h \
+    /usr/include/c++/4.8/random \
+    /usr/include/c++/4.8/cmath \
+    /usr/include/math.h \
+    /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+    /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+    /usr/include/x86_64-linux-gnu/bits/huge_val.h \
+    /usr/include/x86_64-linux-gnu/bits/huge_valf.h \
+    /usr/include/x86_64-linux-gnu/bits/huge_vall.h \
+    /usr/include/x86_64-linux-gnu/bits/inf.h \
+    /usr/include/x86_64-linux-gnu/bits/nan.h \
+    /usr/include/x86_64-linux-gnu/bits/mathdef.h \
+    /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+    /usr/include/c++/4.8/limits \
+    /usr/include/c++/4.8/bits/random.h \
+    /usr/include/x86_64-linux-gnu/c++/4.8/bits/opt_random.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/x86intrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/ia32intrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/mmintrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/xmmintrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/mm_malloc.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/emmintrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/immintrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/fxsrintrin.h \
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/include/adxintrin.h \
+    /usr/include/c++/4.8/bits/random.tcc \
+    /usr/include/c++/4.8/numeric \
+    /usr/include/c++/4.8/bits/stl_numeric.h \
+    /usr/include/c++/4.8/functional \
+    /usr/include/c++/4.8/typeinfo \
+    /usr/include/c++/4.8/tuple \
+    /usr/include/c++/4.8/array \
+    /usr/include/c++/4.8/stdexcept \
+    /usr/include/c++/4.8/bits/uses_allocator.h

@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/cs/core/Exception.cpp \
-../src/cs/core/lang.cpp 
+../src/cs/core/lang.cpp \
+../src/cs/core/utils.cpp 
 
 OBJS += \
 ./src/cs/core/Exception.o \
-./src/cs/core/lang.o 
+./src/cs/core/lang.o \
+./src/cs/core/utils.o 
 
 CPP_DEPS += \
 ./src/cs/core/Exception.d \
-./src/cs/core/lang.d 
+./src/cs/core/lang.d \
+./src/cs/core/utils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -25,6 +25,7 @@ public:
 
 	CpuMatrix(size_t m, size_t n);
 	CpuMatrix(size_t m, size_t n, bool clear);
+	CpuMatrix(size_t m, size_t n, float* src);
 	CpuMatrix(const CpuMatrix& other);
 	CpuMatrix(const initializer_list<const initializer_list<float>> &list);
 

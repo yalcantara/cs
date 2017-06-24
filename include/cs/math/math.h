@@ -20,6 +20,11 @@ namespace math {
 extern size_t VECTOR_PRINT_MAX;
 extern size_t MATRIX_PRINT_MAX;
 
+
+
+
+
+
 bool is_cpu(const Matrix& m);
 bool is_cpu(const Matrix* m);
 CpuMatrix& cpu_cast(Matrix& m);

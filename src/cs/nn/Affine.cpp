@@ -45,23 +45,20 @@ void Affine::init() {
 	release();
 	if (gpu) {
 		w = new GpuMatrix(in, out);
-		w->randn();
-		
 		b = new GpuVector(out);
-		b->randn();
 		
 		dw = new GpuMatrix(in, out);
 		db = new GpuVector(out);
 	} else {
 		w = new CpuMatrix(in, out);
-		w->randn();
-		
 		b = new CpuVector(out);
-		b->randn();
 		
 		dw = new CpuMatrix(in, out);
 		db = new CpuVector(out);
 	}
+	
+	w->randn();
+	b->randn();
 }
 
 

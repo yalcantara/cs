@@ -21,7 +21,6 @@ namespace math {
 
 CpuMatrix::CpuMatrix(size_t m, size_t n) :
 		CpuMatrix(m, n, true) {
-	
 }
 
 CpuMatrix::CpuMatrix(size_t m, size_t n, bool clear) :
@@ -32,6 +31,11 @@ CpuMatrix::CpuMatrix(size_t m, size_t n, bool clear) :
 	} else {
 		arr = (float*) malloc(sizeof(float) * length);
 	}
+}
+
+CpuMatrix::CpuMatrix(size_t m, size_t n, float* src) :
+		CpuMatrix(m, n, false) {
+	copy_float(src, arr, length);
 }
 
 CpuMatrix::CpuMatrix(const CpuMatrix& other) :

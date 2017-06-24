@@ -127,6 +127,15 @@ src/cs/math/CpuVector.o : ../src/cs/math/CpuVector.cpp \
     /usr/include/c++/4.8/bits/ostream.tcc \
     /usr/include/c++/4.8/istream \
     /usr/include/c++/4.8/bits/istream.tcc \
+    /usr/include/c++/4.8/vector \
+    /usr/include/c++/4.8/bits/stl_construct.h \
+    /usr/include/c++/4.8/ext/alloc_traits.h \
+    /usr/include/c++/4.8/bits/alloc_traits.h \
+    /usr/include/c++/4.8/bits/ptr_traits.h \
+    /usr/include/c++/4.8/bits/stl_uninitialized.h \
+    /usr/include/c++/4.8/bits/stl_vector.h \
+    /usr/include/c++/4.8/bits/stl_bvector.h \
+    /usr/include/c++/4.8/bits/vector.tcc \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/Vector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/math.h \
@@ -141,10 +150,6 @@ src/cs/math/CpuVector.o : ../src/cs/math/CpuVector.cpp \
     /usr/include/c++/4.8/bits/algorithmfwd.h \
     /usr/include/c++/4.8/bits/stl_heap.h \
     /usr/include/c++/4.8/bits/stl_tempbuf.h \
-    /usr/include/c++/4.8/bits/stl_construct.h \
-    /usr/include/c++/4.8/ext/alloc_traits.h \
-    /usr/include/c++/4.8/bits/alloc_traits.h \
-    /usr/include/c++/4.8/bits/ptr_traits.h \
     /usr/include/c++/4.8/random \
     /usr/include/c++/4.8/cmath \
     /usr/include/math.h \
@@ -159,11 +164,6 @@ src/cs/math/CpuVector.o : ../src/cs/math/CpuVector.cpp \
     /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
     /usr/include/c++/4.8/limits \
     /usr/include/c++/4.8/bits/random.h \
-    /usr/include/c++/4.8/vector \
-    /usr/include/c++/4.8/bits/stl_uninitialized.h \
-    /usr/include/c++/4.8/bits/stl_vector.h \
-    /usr/include/c++/4.8/bits/stl_bvector.h \
-    /usr/include/c++/4.8/bits/vector.tcc \
     /usr/include/x86_64-linux-gnu/c++/4.8/bits/opt_random.h \
     /usr/lib/gcc/x86_64-linux-gnu/4.8/include/x86intrin.h \
     /usr/lib/gcc/x86_64-linux-gnu/4.8/include/ia32intrin.h \

@@ -197,6 +197,16 @@ src/cs.o : ../src/cs.cu \
     /usr/include/c++/4.8/bits/ostream.tcc \
     /usr/include/c++/4.8/istream \
     /usr/include/c++/4.8/bits/istream.tcc \
+    /usr/include/c++/4.8/vector \
+    /usr/include/c++/4.8/bits/stl_construct.h \
+    /usr/include/c++/4.8/ext/alloc_traits.h \
+    /usr/include/c++/4.8/bits/alloc_traits.h \
+    /usr/include/c++/4.8/bits/ptr_traits.h \
+    /usr/include/c++/4.8/bits/stl_uninitialized.h \
+    /usr/include/c++/4.8/bits/stl_vector.h \
+    /usr/include/c++/4.8/bits/stl_bvector.h \
+    /usr/include/c++/4.8/bits/vector.tcc \
+    /home/yaison/cuda-workspace/cs/include/cs/core/utils.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuMatrix.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/Vector.h \
@@ -204,13 +214,17 @@ src/cs.o : ../src/cs.cu \
     /home/yaison/cuda-workspace/cs/include/cs/math/GpuMatrix.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/GpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/math.h \
+    /home/yaison/cuda-workspace/cs/include/cs/gpu/gpu.h \
+    /usr/local/cuda-7.5/bin/..//include/cublas_v2.h \
+    /usr/local/cuda-7.5/bin/..//include/cublas_api.h \
+    /usr/local/cuda-7.5/bin/..//include/cuComplex.h \
+    /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Affine.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Layer.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/errors.h \
     /usr/include/x86_64-linux-gnu/sys/time.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/gpu_layers.cuh \
-    /usr/local/cuda-7.5/bin/..//include/cublas_v2.h \
-    /usr/local/cuda-7.5/bin/..//include/cublas_api.h \
-    /usr/local/cuda-7.5/bin/..//include/cuComplex.h \
-    /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h \
-    /home/yaison/cuda-workspace/cs/include/cs/nn/Sigmoid.h
+    /home/yaison/cuda-workspace/cs/include/cs/nn/Sigmoid.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/GridColInfo.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/GridInfo.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/Grid.h

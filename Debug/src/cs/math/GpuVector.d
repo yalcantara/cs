@@ -165,6 +165,15 @@ src/cs/math/GpuVector.o : ../src/cs/math/GpuVector.cpp \
     /usr/include/c++/4.8/bits/ostream.tcc \
     /usr/include/c++/4.8/istream \
     /usr/include/c++/4.8/bits/istream.tcc \
+    /usr/include/c++/4.8/vector \
+    /usr/include/c++/4.8/bits/stl_construct.h \
+    /usr/include/c++/4.8/ext/alloc_traits.h \
+    /usr/include/c++/4.8/bits/alloc_traits.h \
+    /usr/include/c++/4.8/bits/ptr_traits.h \
+    /usr/include/c++/4.8/bits/stl_uninitialized.h \
+    /usr/include/c++/4.8/bits/stl_vector.h \
+    /usr/include/c++/4.8/bits/stl_bvector.h \
+    /usr/include/c++/4.8/bits/vector.tcc \
     /home/yaison/cuda-workspace/cs/include/cs/math/GpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/Vector.h \

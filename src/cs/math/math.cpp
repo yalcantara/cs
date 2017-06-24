@@ -22,8 +22,8 @@ namespace cs {
 using namespace core;
 namespace math {
 
-size_t VECTOR_PRINT_MAX = 100;
-size_t MATRIX_PRINT_MAX = 100;
+size_t VECTOR_PRINT_MAX = 300;
+size_t MATRIX_PRINT_MAX = 300;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 

@@ -29,5 +29,6 @@ src \
 src/cs/nn \
 src/cs/math \
 src/cs/gpu \
+src/cs/data \
 src/cs/core \
 

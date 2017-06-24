@@ -13,6 +13,7 @@ RM := rm -rf
 -include src/cs/nn/subdir.mk
 -include src/cs/math/subdir.mk
 -include src/cs/gpu/subdir.mk
+-include src/cs/data/subdir.mk
 -include src/cs/core/subdir.mk
 
 OS_SUFFIX := $(subst Linux,linux,$(subst Darwin/x86_64,darwin,$(shell uname -s)/$(shell uname -m)))
