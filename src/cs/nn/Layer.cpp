@@ -37,6 +37,14 @@ void Layer::set_dim(size_t input, size_t output) {
 	out = output;
 }
 
+void Layer::set_in_dim(size_t in) {
+	this->in = in;
+}
+
+void Layer::set_out_dim(size_t out) {
+	this->out = out;
+}
+
 size_t Layer::out_dim() const {
 	return out;
 }
@@ -48,6 +56,15 @@ size_t Layer::in_dim() const {
 Matrix& Layer::get_dx() const {
 	check_null(dx);
 	return *dx;
+}
+
+Matrix& Layer::get_fx() const {
+	check_null(fx);
+	return *fx;
+}
+
+bool Layer::has_fx() const{
+	return fx != nullptr && fx != NULL;
 }
 
 void Layer::init_fx(size_t m) {

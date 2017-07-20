@@ -18,7 +18,6 @@ namespace cs {
 using namespace core;
 namespace math {
 
-
 CpuMatrix::CpuMatrix(size_t m, size_t n) :
 		CpuMatrix(m, n, true) {
 }
@@ -89,7 +88,7 @@ void CpuMatrix::randn() {
 }
 
 void CpuMatrix::clear() {
-	for(size_t i = 0; i < length; i++){
+	for (size_t i = 0; i < length; i++) {
 		arr[i] = 0.0;
 	}
 }
@@ -135,6 +134,19 @@ float CpuMatrix::get(size_t i, size_t j) const {
 void CpuMatrix::set(size_t i, size_t j, float val) const {
 	check_index(i, j);
 	arr[i * n + j] = val;
+}
+
+void CpuMatrix::subi(const CpuMatrix& b) {
+	check_same_dimensions(b);
+	
+	size_t l = length;
+	
+	float* A = arr;
+	float* B = b.arr;
+	
+	for (size_t i = 0; i < l; i++) {
+		A[i] = A[i] - B[i];
+	}
 }
 
 const CpuMatrix CpuMatrix::operator+(const CpuMatrix& b) const {
@@ -295,7 +307,7 @@ const CpuMatrix CpuMatrix::operator^(float exp) const {
 	return ans;
 }
 
-void CpuMatrix::dot(const CpuMatrix& b, CpuMatrix& ans)const {
+void CpuMatrix::dot(const CpuMatrix& b, CpuMatrix& ans) const {
 	
 	assert_cols(b.m, n);
 	
@@ -368,8 +380,7 @@ void CpuMatrix::affine(const Matrix& x, const Vector& b, Matrix& ans) const {
 	affine(cpu_cast(x), cpu_cast(b), cpu_cast(ans));
 }
 
-
-void CpuMatrix::affine(const CpuMatrix& x, const CpuVector& b, CpuMatrix& ans) const{
+void CpuMatrix::affine(const CpuMatrix& x, const CpuVector& b, CpuMatrix& ans) const {
 	
 	size_t p = x.n;
 	assert_rows(b.length, p);
@@ -428,13 +439,51 @@ float CpuMatrix::avg() const {
 	return sum() / length;
 }
 
-void CpuMatrix::copy(Matrix& dest)const{
+void CpuMatrix::copy(Matrix& dest) const {
 	copy(cpu_cast(dest));
 }
 
-void CpuMatrix::copy(CpuMatrix& dest)const{
+void CpuMatrix::copy(CpuMatrix& dest) const {
 	check_same_dimensions(dest);
 	copy_float(arr, dest.arr, length);
+}
+
+const CpuMatrix CpuMatrix::sltcols(size_t start, size_t end) const {
+	
+	if (start >= end) {
+		throw Exception(
+				"The start parameter must be less than the end parameter -1. The start parameter is: "
+						+ to_string(start) + ", the end parameter is: " + to_string(end) + ".");
+	}
+	
+	if (start >= n - 1) {
+		throw Exception(
+				"The start parameter must be less than the number of columns -1. Expected < " + to_string(n - 1)
+						+ ", but got: " + to_string(start) + " instead.");
+	}
+	
+	if (end > n) {
+		throw Exception(
+				"The end parameter must be less than the number of columns. Expected < " + to_string(n) + ", but got: "
+						+ to_string(end) + " instead.");
+	}
+	
+	size_t cols = end - start;
+	CpuMatrix ans = CpuMatrix(m, cols);
+	
+	float* A = this->arr;
+	float* B = ans.ptr();
+	
+	for (size_t i = 0; i < m; i++) {
+		for (size_t j = 0; j < cols; j++) {
+			size_t src = i * n + j + start;
+			size_t dst = i * cols + j;
+			
+			B[dst] = A[src];
+		}
+	}
+	
+	return ans;
 }
 
 float* CpuMatrix::ptr() const {

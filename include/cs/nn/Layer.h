@@ -35,10 +35,16 @@ public:
 	void set_dim(size_t input, size_t output);
 	virtual void init()=0;
 
+	void set_in_dim(size_t in);
+	void set_out_dim(size_t out);
+	
 	size_t in_dim() const;
 	size_t out_dim() const;
 
 	Matrix& get_dx() const;
+	Matrix& get_fx()const;
+	
+	bool has_fx()const;
 
 	virtual Matrix& foward(const Matrix& x)=0;
 	virtual Matrix& backward(const Matrix& dg)=0;

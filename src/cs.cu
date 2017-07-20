@@ -11,25 +11,25 @@
 #include <cs/core/Exception.h>
 #include <cs/core/lang.h>
 #include <cs/core/utils.h>
+#include <cs/data/Grid.h>
+#include <cs/data/GridInfo.h>
+#include <cs/gpu/gpu.h>
 #include <cs/math/CpuMatrix.h>
+#include <cs/math/CpuVector.h>
 #include <cs/math/GpuMatrix.h>
 #include <cs/math/GpuVector.h>
 #include <cs/math/math.h>
-#include <cs/gpu/gpu.h>
 #include <cs/nn/Affine.h>
 #include <cs/nn/errors.h>
+#include <cs/nn/MinSquare.h>
+#include <cs/nn/Network.h>
+#include <cs/nn/Sigmoid.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-#include <cs/nn/gpu_layers.cuh>
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
-#include <cs/nn/Sigmoid.h>
-#include <cs/data/GridColInfo.h>
-#include <cs/data/GridInfo.h>
-#include <cs/data/Grid.h>
+#include <string>
 
 using namespace std;
 using namespace cs::core;
@@ -38,36 +38,40 @@ using namespace cs::nn;
 using namespace cs::gpu;
 using namespace cs::data;
 
-void hit(CpuMatrix& h, CpuMatrix& y){
+void memtest() {
+	//test that the memory is ok by doing some memory allocation/dealocation etc...
+	
+	float* test = (float*) malloc(sizeof(float) * 5);
+	free(test);
+}
+
+void hit(CpuMatrix& h, CpuMatrix& y) {
 	
 	size_t total = y.m;
 	size_t classes = y.n;
 	size_t good = 0;
 	
-	
-	for(size_t i =0; i < total; i++){
-		for(size_t j =0; j < classes; j++){
-			float val = y.get(i,j);
+	for (size_t i = 0; i < total; i++) {
+		for (size_t j = 0; j < classes; j++) {
+			float val = y.get(i, j);
 			float ans = h.get(i, j);
 			
-			if(val == 1){
-				if(ans >= 0.5){
+			if (val == 1) {
+				if (ans >= 0.5) {
 					good++;
 				}
-			}else{
-				if(ans < 0.5){
+			} else {
+				if (ans < 0.5) {
 					good++;
 				}
 			}
 		}
 	}
 	
-	
-	
 	println("======================================================");
-	printf("total: %6d\n",  total);
-	printf("good : %6d\n",  good);
-	printf("perc : %6.0f%\n",  good *  100.0 /(total * classes) );
+	printf("total: %6d\n", (int) total);
+	printf("good : %6d\n", (int) good);
+	printf("perc : %6.0f%\n", (float) (good * 100.0 / (total * classes)));
 	println("======================================================");
 }
 
@@ -607,6 +611,10 @@ void test_data() {
 	s2.set_dim(f2.out_dim());
 	s2.init();
 	
+	MinSquare ms = MinSquare();
+	ms.set_dim(s2.out_dim());
+	ms.init();
+	
 	println("About to train");
 	int iter = 100000;
 	float j;
@@ -619,6 +627,7 @@ void test_data() {
 		Matrix& h2 = s1.foward(h1);
 		Matrix& h3 = f2.foward(h2);
 		Matrix& h4 = s2.foward(h3);
+		Matrix& h5 = ms.foward(h4);
 		
 		if (iter <= 10 || i % (iter / 10) == 0) {
 			j = min_square_error(h4, y);
@@ -627,8 +636,8 @@ void test_data() {
 			println();
 		}
 		
-		CpuMatrix dg = cpu_cast(h4) - y;
-		Matrix& b1 = s2.backward(dg);
+		Matrix& b0 = ms.backward(y);
+		Matrix& b1 = s2.backward(b0);
 		Matrix& b2 = f2.backward(b1);
 		Matrix& b3 = s1.backward(b2);
 		f1.backward(b3);
@@ -656,18 +665,9 @@ void adult_data_gpu() {
 	//g.shuffle();
 	
 	GpuMatrix x = g.toMatrix(0, 14, true);
-	GpuMatrix yy = g.toMatrix(14, 15, false);
+	CpuMatrix yy = g.toMatrix(14, 15, false);
 	
-	
-	CpuMatrix ycpu = yy.cpu();
-	CpuMatrix ya = CpuMatrix(g.rows(), 1);
-	
-	
-	for(size_t i=0; i < g.rows(); i++){
-		ya.set(i, 0, ycpu.get(i, 0));
-	}
-	
-	GpuMatrix y = ya;
+	GpuMatrix y = yy.sltcols(0, 1);
 	
 	bool gpu = true;
 	
@@ -691,8 +691,19 @@ void adult_data_gpu() {
 	s2.set_dim(f2.out_dim());
 	s2.init();
 	
+	Matrix& h1 = f1.foward(x);
+	Matrix& h2 = s1.foward(h1);
+	Matrix& h3 = f2.foward(h2);
+	Matrix& h4 = s2.foward(h3);
+	
+	CpuMatrix h4c = gpu_cast(h4).cpu();
+	CpuMatrix yc = y.cpu();
+	hit(h4c, yc);
+	
+	println();
+	
 	println("About to train");
-	int iter = 10000;
+	int iter = 10;
 	float j;
 	float alpha = 0.001;
 	for (int i = 0; i <= iter; i++) {
@@ -719,17 +730,21 @@ void adult_data_gpu() {
 		
 		f2.update(alpha);
 		f1.update(alpha);
+		
+		memtest();
 	}
 	
 	println();
-	Matrix& h1 = f1.foward(x);
-	Matrix& h2 = s1.foward(h1);
-	Matrix& h3 = f2.foward(h2);
-	Matrix& h4 = s2.foward(h3);
+	Matrix& h21 = f1.foward(x);
+	Matrix& h22 = s1.foward(h21);
+	Matrix& h23 = f2.foward(h22);
+	Matrix& h24 = s2.foward(h23);
 	
-	CpuMatrix h4c = gpu_cast(h4).cpu();
-	CpuMatrix yc = y.cpu();
-	hit(h4c, yc);
+	CpuMatrix h24c = gpu_cast(h24).cpu();
+	CpuMatrix y2c = y.cpu();
+	hit(h24c, y2c);
+	
+	memtest();
 }
 
 void adult_data_cpu() {
@@ -740,7 +755,9 @@ void adult_data_cpu() {
 	//g.shuffle();
 	
 	CpuMatrix x = g.toMatrix(0, 14, true);
-	CpuMatrix y = g.toMatrix(14, 15, false);
+	CpuMatrix yy = g.toMatrix(14, 15, false);
+	
+	CpuMatrix y = yy.sltcols(0, 1);
 	
 	bool gpu = false;
 	
@@ -767,7 +784,16 @@ void adult_data_cpu() {
 	println("About to train");
 	int iter = 10;
 	float j;
-	float alpha = 0.1;
+	float alpha = 0.001;
+	
+	Matrix& h1 = f1.foward(x);
+	Matrix& h2 = s1.foward(h1);
+	Matrix& h3 = f2.foward(h2);
+	Matrix& h4 = s2.foward(h3);
+	
+	hit(cpu_cast(h4), y);
+	println();
+	
 	for (int i = 0; i <= iter; i++) {
 		//println("===================================");
 		//f.print();
@@ -781,12 +807,10 @@ void adult_data_cpu() {
 			j = min_square_error(h4, y);
 			//println("=======================================");
 			printf("iter: %8d  J: %12.8f", i, j);
-			fflush(stdout);
 			println();
 		}
 		
 		CpuMatrix dg = cpu_cast(h4) - y;
-		
 		Matrix& b1 = s2.backward(dg);
 		Matrix& b2 = f2.backward(b1);
 		Matrix& b3 = s1.backward(b2);
@@ -794,24 +818,108 @@ void adult_data_cpu() {
 		
 		f2.update(alpha);
 		f1.update(alpha);
+		
+		memtest();
 	}
 	
 	println();
-	Matrix& h1 = f1.foward(x);
-	Matrix& h2 = s1.foward(h1);
-	Matrix& h3 = f2.foward(h2);
-	Matrix& h4 = s2.foward(h3);
+	Matrix& h21 = f1.foward(x);
+	Matrix& h22 = s1.foward(h21);
+	Matrix& h23 = f2.foward(h22);
+	Matrix& h24 = s2.foward(h23);
 	
-	println("Ans:");
-	h4.print();
-	println("ended");
+	hit(cpu_cast(h24), y);
+	
+	memtest();
 	
 }
 
+void networktest() {
+	string data = ffull("files/iris.data");
+	
+	Grid g = Grid(data);
+	//g.shuffle();
+	
+	CpuMatrix x = g.toMatrix(0, 4, true);
+	CpuMatrix y = g.toMatrix(4, 5, false);
+	
+	Network n = Network();
+	n << Affine();
+	n << Sigmoid();
+	n << Affine();
+	n << Sigmoid();
+	n << MinSquare();
+	
+	n.init(x, y, false);
+	
+	println("CPU Training");
+	println("================================================");
+	float j = n.min_square_error();
+	printf("iter: %8d  J: %12.8f", 0, j);
+	println();
+	for (int i = 0; i < 10; i++) {
+		n.train(10000);
+		j = n.min_square_error();
+		printf("iter: %8d  J: %12.8f", i, j);
+		println();
+		
+	}
+	
+	println("GPU Training");
+	println("================================================");
+	
+	GpuMatrix gx = x;
+	GpuMatrix gy = y;
+	n.init(gx, gy, true);
+	
+	j = n.min_square_error();
+	printf("iter: %8d  J: %12.8f", 0, j);
+	fflush(stdout);
+	for (int i = 0; i < 10; i++) {
+		n.train(10000);
+		j = n.min_square_error();
+		printf("iter: %8d  J: %12.8f", i, j);
+		fflush(stdout);
+		println();
+	}
+	
+	n.forward().print();
+}
 
+void net() {
+	
+	string data = ffull("files/iris.data");
+	
+	Grid g = Grid(data);
+	//g.shuffle();
+	
+	CpuMatrix x = g.toMatrix(0, 4, false);
+	
+	CpuMatrix y = g.toMatrix(4, 5, false);
+	
+	Network n = Network();
+	
+	n << Affine();
+	n << Sigmoid();
+	n.init(x, y, false);
+	
+	n.forward();
+	
+	println();
+	memtest();
+}
 
 int main(void) {
-	adult_data_gpu();
+	
+	println();
+	
+	net();
+	memtest();
+	println("ok");
+	
+	//adult_data_cpu();
+	//networktest();
+	//adult_data_gpu();
 	//test_data();
 	
 	//iris_test_gpu();

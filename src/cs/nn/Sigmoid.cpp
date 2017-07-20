@@ -18,6 +18,16 @@ using namespace core;
 using namespace math;
 namespace nn {
 
+
+void memtest() {
+	//test that the memory is ok by doing some memory allocation/dealocation etc...
+	
+	float* test = (float*) malloc(sizeof(float) * 5);
+	free(test);
+	
+	println();
+}
+
 Sigmoid::Sigmoid() {
 	
 }
@@ -31,9 +41,11 @@ void Sigmoid::set_dim(size_t inout){
 }
 
 Matrix& Sigmoid::foward(const Matrix& x) {
+	memtest();
 	init_fx(x.m);
 	this->x = const_cast<Matrix*>(&x);
 	
+	memtest();
 	if (gpu) {
 		gpu_foward(gpu_cast(x), gpu_cast(fx));
 	} else {
@@ -74,6 +86,7 @@ void Sigmoid::gpu_backward(const GpuMatrix& dg){
 
 void Sigmoid::cpu_foward(const CpuMatrix& x, const CpuMatrix& fx) {
 	
+	memtest();
 	size_t m = x.m;
 	size_t n = x.n;
 	

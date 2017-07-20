@@ -37,6 +37,8 @@ public:
 	float get(size_t i, size_t j)const;
 	void set(size_t i, size_t j, float val)const;
 	
+	void subi(const CpuMatrix& b);
+	
 	const CpuMatrix operator+(const CpuMatrix& b)const;
 	const CpuMatrix operator+(float val)const;
 	const CpuMatrix operator-(const CpuMatrix& b)const;
@@ -65,6 +67,10 @@ public:
 
 	void copy(Matrix& dest)const;
 	void copy(CpuMatrix& dest)const;
+	
+	const CpuMatrix sltcols(size_t start, size_t end)const;
+	
+	
 	float* ptr()const;
 
 	void print()const;

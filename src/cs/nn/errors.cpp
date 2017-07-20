@@ -8,6 +8,9 @@
 #include <cs/nn/errors.h>
 #include <cs/math/math.h>
 #include <stdlib.h>
+#include <algorithm>
+
+using namespace std;
 
 namespace cs {
 using namespace math;
@@ -23,9 +26,18 @@ float min_square_error(const Matrix& h, const Matrix& y) {
 
 float min_square_error(const CpuMatrix& h, const CpuMatrix& y) {
 	
-	size_t m = y.m;
+	float ans = 0.0f;
 	
-	float ans = 1.0 / (2 * m) * sum((h - y) ^ 2);
+	size_t m = y.m;
+	size_t n = y.n;
+	
+	for(size_t i =0; i < m; i++){
+		for(size_t j =0; j < n; j++){
+			ans += pow(h.get(i, j) - y.get(i, j), 2);
+		}
+	}
+	
+	ans = ans / (2 * m);
 	
 	return ans;
 }

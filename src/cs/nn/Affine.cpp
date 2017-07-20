@@ -71,9 +71,6 @@ void Affine::set_bias(const Vector& bias) {
 	bias.copy(*b);
 }
 
-
-
-
 Matrix& Affine::foward(const Matrix& x) {
 	init_fx(x.m);
 	this->x = const_cast<Matrix*>(&x);
@@ -132,6 +129,7 @@ void Affine::cpu_backward(const CpuMatrix& dg) {
 	float* DX = dx.ptr();
 	float* DW = dw.ptr();
 	float* DB = db.ptr();
+	
 	
 	for (int i = 0; i < m; i++) {
 		for (int k = 0; k < p; k++) {

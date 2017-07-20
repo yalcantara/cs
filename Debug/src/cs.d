@@ -207,24 +207,25 @@ src/cs.o : ../src/cs.cu \
     /usr/include/c++/4.8/bits/stl_bvector.h \
     /usr/include/c++/4.8/bits/vector.tcc \
     /home/yaison/cuda-workspace/cs/include/cs/core/utils.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/Grid.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/GridInfo.h \
+    /home/yaison/cuda-workspace/cs/include/cs/data/GridColInfo.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuMatrix.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/CpuVector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/Vector.h \
     /home/yaison/cuda-workspace/cs/include/cs/math/Matrix.h \
-    /home/yaison/cuda-workspace/cs/include/cs/math/GpuMatrix.h \
-    /home/yaison/cuda-workspace/cs/include/cs/math/GpuVector.h \
-    /home/yaison/cuda-workspace/cs/include/cs/math/math.h \
     /home/yaison/cuda-workspace/cs/include/cs/gpu/gpu.h \
     /usr/local/cuda-7.5/bin/..//include/cublas_v2.h \
     /usr/local/cuda-7.5/bin/..//include/cublas_api.h \
     /usr/local/cuda-7.5/bin/..//include/cuComplex.h \
     /usr/local/cuda-7.5/bin/..//include/cuda_fp16.h \
+    /home/yaison/cuda-workspace/cs/include/cs/math/GpuMatrix.h \
+    /home/yaison/cuda-workspace/cs/include/cs/math/GpuVector.h \
+    /home/yaison/cuda-workspace/cs/include/cs/math/math.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Affine.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Layer.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/errors.h \
-    /usr/include/x86_64-linux-gnu/sys/time.h \
-    /home/yaison/cuda-workspace/cs/include/cs/nn/gpu_layers.cuh \
+    /home/yaison/cuda-workspace/cs/include/cs/nn/MinSquare.h \
+    /home/yaison/cuda-workspace/cs/include/cs/nn/Network.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Sigmoid.h \
-    /home/yaison/cuda-workspace/cs/include/cs/data/GridColInfo.h \
-    /home/yaison/cuda-workspace/cs/include/cs/data/GridInfo.h \
-    /home/yaison/cuda-workspace/cs/include/cs/data/Grid.h
+    /usr/include/x86_64-linux-gnu/sys/time.h
