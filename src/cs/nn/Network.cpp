@@ -23,18 +23,22 @@ Network::Network() {
 
 void Network::operator<<(Affine layer) {
 	Affine* l = new Affine();
-	
+	l->set_dim(layer.in_dim(), layer.out_dim());
 	layers.push_back(l);
 }
 
 void Network::operator<<(Sigmoid layer) {
 	Sigmoid* l = new Sigmoid();
-	
+	l->set_dim(layer.in_dim());
 	layers.push_back(l);
 }
 
-void Network::operator<<(MinSquare layer) {
-	
+void Network::set_alpha(float alpha) {
+	this->alpha = alpha;
+}
+
+float Network::get_alpha() const {
+	return this->alpha;
 }
 
 void Network::init(Matrix& x, Matrix& y, bool gpu) {
@@ -44,13 +48,23 @@ void Network::init(Matrix& x, Matrix& y, bool gpu) {
 		throw Exception("No layers in this network.");
 	}
 	
+	if (gpu) {
+		if (is_gpu(x) == false) {
+			throw Exception("Flag gpu is set to TRUE, but the x Matrix is not a GpuMatrix.");
+		}
+		
+		if (is_gpu(y) == false) {
+			throw Exception("Flag gpu is set to TRUE, but the y Matrix is not a GpuMatrix.");
+		}
+	}
+	
 	this->x = &x;
 	this->y = &y;
+	this->gpu = gpu;
 	
 	if (L == 1) {
 		Layer& single = *layers[0];
 		
-		single.set_dim(x.n, y.n);
 		single.use_gpu(gpu);
 		single.init();
 		
@@ -58,20 +72,17 @@ void Network::init(Matrix& x, Matrix& y, bool gpu) {
 	}
 	
 	Layer& first = *layers[0];
-	first.set_dim(x.n, x.n);
-	first.use_gpu(false);
+	first.use_gpu(gpu);
 	first.init();
 	
 	for (size_t l = 1; l < L - 1; l++) {
 		
 		Layer& crt = *layers[l];
-		crt.set_dim(x.n, x.n);
 		crt.use_gpu(gpu);
 		crt.init();
 	}
 	
 	Layer& last = *layers[L - 1];
-	last.set_dim(x.n, y.n);
 	last.use_gpu(gpu);
 	last.init();
 }
@@ -84,21 +95,15 @@ Matrix& Network::forward() {
 		throw Exception("No layers in this network.");
 	}
 	
-	Layer& l1 = *layers[0];
+	Matrix* out = x;
 	
-	Matrix& x = *this->x;
-	Matrix& o = l1.foward(x);
-
+	for (size_t l = 0; l < L; l++) {
+		Layer& crt = *layers[l];
+		
+		out = &crt.foward(*out);
+	}
 	
-	Layer& l2 = *layers[1];
-	
-	CpuMatrix& c = cpu_cast(o);
-	CpuMatrix n = CpuMatrix(c.m, c.n);
-	
-	Matrix& out = l1.foward(o);
-	l2.foward(out);
-	
-	return o;
+	return *out;
 }
 
 const CpuMatrix Network::cpu_last_grad() const {
@@ -109,9 +114,24 @@ const CpuMatrix Network::cpu_last_grad() const {
 	
 	CpuMatrix& h = cpu_cast(last.get_fx());
 	
-	CpuMatrix y = cpu_cast(this->y);
+	CpuMatrix& y = cpu_cast(this->y);
 	
-	CpuMatrix dg = y - h;
+	CpuMatrix dg = h - y;
+	
+	return dg;
+}
+
+const GpuMatrix Network::gpu_last_grad() const {
+	
+	size_t L = layers.size();
+	
+	Layer& last = *layers[L - 1];
+	
+	GpuMatrix& h = gpu_cast(last.get_fx());
+	
+	GpuMatrix& y = gpu_cast(this->y);
+	
+	GpuMatrix dg = h - y;
 	
 	return dg;
 }
@@ -120,18 +140,25 @@ void Network::backward() {
 	
 	size_t L = layers.size();
 	
+	Layer* last = layers[L - 1];
+	Matrix* o;
+	
 	if (gpu) {
 		
+		GpuMatrix dg = gpu_last_grad();
+		
+		o = &last->backward(dg);
 	} else {
 		CpuMatrix dg = cpu_last_grad();
 		
-		Layer* last = layers[L - 1];
-		Matrix* o = &last->backward(dg);
-		for (long int i = L - 2; i >= 0; i--) {
-			Layer& crt = *layers[i];
-			
-			o = &crt.backward(*o);
-		}
+		o = &last->backward(dg);
+	}
+	
+	//L - 2 cuz, we already did backward on layers[L - 1]
+	for (long int i = L - 2; i >= 0; i--) {
+		Layer& crt = *layers[i];
+		
+		o = &crt.backward(*o);
 	}
 	
 }
@@ -140,7 +167,7 @@ void Network::update() {
 	
 	size_t L = layers.size();
 	
-	for (size_t l = 1; l < L; l++) {
+	for (size_t l = 0; l < L; l++) {
 		Layer& crt = *layers[l];
 		crt.update(alpha);
 	}
@@ -160,7 +187,7 @@ float Network::min_square_error() {
 	size_t L = layers.size();
 	Layer& last = *layers[L - 1];
 	if (last.has_fx() == false) {
-		//forward();
+		forward();
 	}
 	
 	Matrix& h = last.get_fx();

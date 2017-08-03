@@ -11,7 +11,6 @@
 
 #include <cs/nn/Affine.h>
 #include <cs/nn/Sigmoid.h>
-#include <cs/nn/MinSquare.h>
 #include <vector>
 
 using namespace std;
@@ -30,7 +29,7 @@ private:
 	vector<Layer*> layers;
 	
 	const CpuMatrix cpu_last_grad()const;
-	const CpuMatrix gpu_last_grad()const;
+	const GpuMatrix gpu_last_grad()const;
 	
 public:
 	Network();
@@ -38,8 +37,9 @@ public:
 	
 	void operator<<(Affine layer);
 	void operator<<(Sigmoid layer);
-	void operator<<(MinSquare layer);
 	
+	void set_alpha(float alpha);
+	float get_alpha()const;
 	void init(Matrix& x, Matrix& y, bool gpu);
 	
 	Matrix& forward();

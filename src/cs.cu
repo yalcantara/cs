@@ -21,7 +21,6 @@
 #include <cs/math/math.h>
 #include <cs/nn/Affine.h>
 #include <cs/nn/errors.h>
-#include <cs/nn/MinSquare.h>
 #include <cs/nn/Network.h>
 #include <cs/nn/Sigmoid.h>
 #include <stddef.h>
@@ -611,9 +610,7 @@ void test_data() {
 	s2.set_dim(f2.out_dim());
 	s2.init();
 	
-	MinSquare ms = MinSquare();
-	ms.set_dim(s2.out_dim());
-	ms.init();
+
 	
 	println("About to train");
 	int iter = 100000;
@@ -627,7 +624,6 @@ void test_data() {
 		Matrix& h2 = s1.foward(h1);
 		Matrix& h3 = f2.foward(h2);
 		Matrix& h4 = s2.foward(h3);
-		Matrix& h5 = ms.foward(h4);
 		
 		if (iter <= 10 || i % (iter / 10) == 0) {
 			j = min_square_error(h4, y);
@@ -636,7 +632,7 @@ void test_data() {
 			println();
 		}
 		
-		Matrix& b0 = ms.backward(y);
+		CpuMatrix b0 = cpu_cast(h4) - y;
 		Matrix& b1 = s2.backward(b0);
 		Matrix& b2 = f2.backward(b1);
 		Matrix& b3 = s1.backward(b2);
@@ -848,7 +844,6 @@ void networktest() {
 	n << Sigmoid();
 	n << Affine();
 	n << Sigmoid();
-	n << MinSquare();
 	
 	n.init(x, y, false);
 	
@@ -886,34 +881,91 @@ void networktest() {
 	n.forward().print();
 }
 
-void net() {
+void netiris() {
+	
+	srand(time(NULL));
 	
 	string data = ffull("files/iris.data");
 	
 	Grid g = Grid(data);
 	//g.shuffle();
 	
-	CpuMatrix x = g.toMatrix(0, 4, false);
-	
+	CpuMatrix x = g.toMatrix(0, 4, true);
 	CpuMatrix y = g.toMatrix(4, 5, false);
+	
+	GpuMatrix xgpu = x;
+	GpuMatrix ygpu = y;
 	
 	Network n = Network();
 	
-	n << Affine();
-	n << Sigmoid();
-	n.init(x, y, false);
+	n << Affine(4, 4);
+	n << Sigmoid(4);
+	n << Affine(4, 3);
+	n << Sigmoid(3);
+	n.init(xgpu, ygpu, true);
 	
-	n.forward();
+	for (size_t i = 0; i <= 10; i++) {
+		float j;
+		
+		j = n.min_square_error();
+		printf("i: %6d              J: %12.8f\n", (int) i, j);
+		if (i < 10) {
+			n.train(10000);
+		}
+	}
 	
 	println();
-	memtest();
+	n.forward().print();
+}
+
+void netadult() {
+	
+	srand(time(NULL));
+	
+	string data = ffull("files/adult.data");
+	
+	Grid g = Grid(data);
+	//g.shuffle();
+	
+	CpuMatrix x = g.toMatrix(0, 14, true);
+	CpuMatrix yy = g.toMatrix(14, 15, false);
+	CpuMatrix y = yy.sltcols(0, 1);
+	
+	GpuMatrix xgpu = x;
+	GpuMatrix ygpu = y;
+	
+	Network n = Network();
+	n << Affine(x.n, x.n);
+	n << Sigmoid(x.n);
+	n << Affine(x.n, x.n);
+	n << Sigmoid(x.n);
+	n << Affine(x.n, y.n);
+	n << Sigmoid(y.n);
+	
+	n.set_alpha(0.01);
+	n.init(xgpu, ygpu, true);
+	
+	for (size_t i = 0; i <= 10; i++) {
+		float j;
+		
+		j = n.min_square_error();
+		printf("i: %6d              J: %12.8f\n", (int) i, j);
+		if (i < 10) {
+			n.train(1000);
+		}
+	}
+	
+	Matrix& h = n.forward();
+	GpuMatrix& hgpu = gpu_cast(h);
+	CpuMatrix hcpu = hgpu.cpu();
+	hit(hcpu, y);
 }
 
 int main(void) {
 	
 	println();
 	
-	net();
+	netadult();
 	memtest();
 	println("ok");
 	

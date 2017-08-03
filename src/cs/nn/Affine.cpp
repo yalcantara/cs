@@ -23,6 +23,11 @@ Affine::Affine() :
 		Layer() {
 }
 
+Affine::Affine(size_t in, size_t out) :
+		Layer() {
+	set_dim(in, out);
+}
+
 void Affine::release() {
 	if (w) {
 		delete w;

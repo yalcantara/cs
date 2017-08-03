@@ -38,6 +38,7 @@ private:
 public:
 	
 	Affine();
+	Affine(size_t in, size_t out);
 
 	void release();
 	void init();

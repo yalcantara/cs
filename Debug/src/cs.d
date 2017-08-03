@@ -225,7 +225,6 @@ src/cs.o : ../src/cs.cu \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Affine.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Layer.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/errors.h \
-    /home/yaison/cuda-workspace/cs/include/cs/nn/MinSquare.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Network.h \
     /home/yaison/cuda-workspace/cs/include/cs/nn/Sigmoid.h \
     /usr/include/x86_64-linux-gnu/sys/time.h

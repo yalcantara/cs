@@ -22,7 +22,7 @@ protected:
 	void check_index(size_t row, size_t col) const;
 	void assert_rows(size_t val, size_t expected) const;
 	void assert_cols(size_t val, size_t expected) const;
-	void check_same_dimensions(const Matrix& other) const;
+	
 
 public:
 	const size_t m;
@@ -30,6 +30,8 @@ public:
 	const size_t length;
 	
 	Matrix(size_t m, size_t n);
+	
+	void check_same_dimensions(const Matrix& other) const;
 	
 	virtual void clear()=0;
 	virtual void affine(const Matrix& x, const Vector& b, Matrix& ans)const=0;

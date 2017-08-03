@@ -260,7 +260,7 @@ void gpu_sigmoid_fx(float* x, float* fx, size_t m, size_t n) {
 void gpu_sigmoid_dx(float* x, float* dx, size_t m, size_t n) {
 	init();
 	
-	cuda_sigmoid_fx(x, dx, m, n);
+	cuda_sigmoid_dx(x, dx, m, n);
 }
 
 } // namespace gpu

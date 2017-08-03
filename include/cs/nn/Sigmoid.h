@@ -34,6 +34,7 @@ private:
 	
 public:
 	Sigmoid();
+	Sigmoid(size_t dim);
 	
 	void init();
 	void set_dim(size_t inout);
